@@ -1,7 +1,5 @@
 var getUserMedia = require('get-user-media')
   , RecordRTC = require('recordrtc')
-  , shoe = require('shoe')
-  , stream = shoe('/blobs');
 
 // num of ms each clip will be
 var clipDuration = 5000
@@ -14,10 +12,7 @@ var recOptions = {
     height: 240,
   },
   frameInterval: 10,
-}
-
-function sendBlob (b) {
-  stream.write(b)
+  disableLogs: true,
 }
 
 function recordASec (err, stream) {
@@ -31,9 +26,8 @@ function recordASec (err, stream) {
     .onRecordingStopped(videoURL => {
       // start recording again
       recordASec(err, stream)
-      // send the blob (.webm file) to the server
-      var blob = recordRTC.getBlob();
-      sendBlob(blob)
+      // a link to dl file
+      recordRTC.getDataURL(dataURL => console.log('sup', dataURL))
   })
 }
  
