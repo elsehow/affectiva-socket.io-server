@@ -32,23 +32,24 @@ function time_chunks (file_length_ms, chunk_size_ms) {
 //    stringify_ms(5000)
 //    > 00:00:05 
 function stringify_ms (ms) {
-  function leading_zero (s) {
-    return s < 10 ? '0'+ s : s
-  }
-  function convert (s, eq) {
-    return Math.floor(s / 3600)
-  }
-  // s instead of ms
-  var total_seconds = Math.floor(ms / 1000)
-  // hours
-  var hours = leading_zero(convert(total_seconds,  3600))
-  total_seconds %= 3600;
-  var minutes = leading_zero(convert(total_seconds, 60))
-
-  var seconds = leading_zero(total_seconds % 60);
-
-  return hours +':'+ minutes +':'+ seconds
+    return Math.round(ms / 1000)
 }
+//  function leading_zero (s) {
+//    return s < 10 ? '0'+ s : s
+//  }
+//  function convert (s, eq) {
+//    return Math.floor(s / 3600)
+//  }
+//  // s instead of ms
+//  var total_seconds = Math.round(ms / 1000)
+//  // hours
+//  var hours = leading_zero(convert(total_seconds,  3600))
+//  total_seconds %= 3600;
+//  var minutes = leading_zero(convert(total_seconds, 60))
+//
+//  var seconds = leading_zero(total_seconds % 60);
+//
+//  return hours +':'+ minutes +':'+ seconds
 
 // takes a tuple [start_time_ms, end_time_ms],
 // a chunk index,
@@ -58,16 +59,21 @@ function make_command (start_end_tuple, chunk_i, in_file) {
     var string_start = stringify_ms(start_end_tuple[0])
     var string_end = stringify_ms(start_end_tuple[1])
     var fn_wo_ext = in_file.split('.webm')[0]
-    return 'avconv -ss ' + string_start + ' -i ' + in_file + ' -t ' + string_end + ' -codec: copy ' + fn_wo_ext + '-' + chunk_i + '.webm'
+    return 'avconv ' +
+        ' -ss ' + string_start +
+        ' -t ' + string_end + 
+        ' -i ' + in_file +
+        ' -codec: copy ' + fn_wo_ext + '-' + chunk_i + '.webm'
 }
 
-var file_length = 5000
-var chunk_size = 1000
+var file_length = 10000
+var chunk_size = 5000
 var input_file = 'corpus/1.webm'
 
 var chunks = time_chunks(file_length, chunk_size)
 
 chunks.forEach((c, i) => {
-    console.log(make_command(c, i, input_file))
-    //console.log('done with', i, 'of', c.length)
+    execSync(make_command(c, i, input_file))
+    //console.log(make_command(c, i, input_file))
+    console.log('done with', i, 'of', c.length)
 })
