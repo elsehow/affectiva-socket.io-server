@@ -111,8 +111,8 @@ int main(int argsc, char ** argsv)
 		int buffer_length = 2;
 
 		boolean camera = false;
-		boolean video = false;
-		boolean photo = true;
+		boolean video = true;
+		boolean photo = false;
 
 		shared_ptr<ImageListener> listenPtr(new PlottingImageListener());	// Instanciate the ImageListener class
 

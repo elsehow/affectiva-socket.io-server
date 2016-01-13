@@ -1,8 +1,8 @@
 ///////////////////////////////////////////////
-DATE AND TIME: 1-12-2016 22:53:38
+DATE AND TIME: 1-13-2016 10:54:38
 
 MEASUREMENTS
-Pitch: -14.081541 Yaw: -0.063200 Roll: 7.547718 InterOcularDist: 243.320160
+Pitch: -6.796992 Yaw: -7.708179 Roll: -2.339522 InterOcularDist: 83.199249
 
 EXPRESSIONS
 smile: 0
@@ -13,13 +13,47 @@ noseWrinkle: 0
 upperLipRaise: 0
 lipCornerDepressor: 0
 chinRaise: 0
-lipPucker: 1
+lipPucker: 0
 lipPress: 0
 lipSuck: 0
 mouthOpen: 0
 smirk: 0
 eyeClosure: 0
-attention: 98
+attention: 94
+
+EMOTIONS
+joy: 0
+fear: 0
+disgust: 0
+sadness: 0
+anger: 0
+surprise: 0
+contempt: 0
+valence: 0
+engagement: 0
+
+///////////////////////////////////////////////
+DATE AND TIME: 1-13-2016 10:54:49
+
+MEASUREMENTS
+Pitch: -6.796992 Yaw: -7.708179 Roll: -2.339522 InterOcularDist: 83.199249
+
+EXPRESSIONS
+smile: 0
+innerBrowRaise: 0
+browRaise: 0
+browFurrow: 0
+noseWrinkle: 0
+upperLipRaise: 0
+lipCornerDepressor: 0
+chinRaise: 0
+lipPucker: 0
+lipPress: 0
+lipSuck: 0
+mouthOpen: 0
+smirk: 0
+eyeClosure: 0
+attention: 94
 
 EMOTIONS
 joy: 0

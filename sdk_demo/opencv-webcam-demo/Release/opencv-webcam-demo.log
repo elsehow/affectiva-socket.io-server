@@ -1,4 +1,4 @@
-﻿Build started 1/12/2016 10:53:31 PM.
+﻿Build started 1/13/2016 10:52:39 AM.
      1>Project "C:\Users\Eric Huynh\Desktop\concaminate\sdk_demo\opencv-webcam-demo\opencv-webcam-demo.vcxproj" on node 2 (Rebuild target(s)).
      1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V120\Microsoft.CppBuild.targets(388,5): warning MSB8028: The intermediate directory (Release\) contains files shared from another project (Affectiva SDK Demo.vcxproj, opencv-webcam-demo.vcxproj).  This can lead to incorrect clean and rebuild behavior.
      1>ClCompile:
@@ -16,4 +16,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:01.84
+Time Elapsed 00:00:01.99
