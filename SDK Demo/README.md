@@ -31,4 +31,5 @@ RUNNING
 TROUBLESHOOTING
 ---------------
 
-- If you get some sort of "webcam failed to open" error, clean and recompile the project.
+- If you get some sort of "webcam failed to open" error, try relaunching.
+- If that fails continuously, clean and recompile.

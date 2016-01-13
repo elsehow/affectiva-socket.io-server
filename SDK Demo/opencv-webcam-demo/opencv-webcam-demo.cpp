@@ -27,15 +27,6 @@ class PlottingImageListener : public ImageListener
 {
 public:
 	void onImageResults(std::map<FaceId,Face> faces, Frame image) {
-
-		const int spacing = 10;
-		const int left_margin = 30;
-		const int font = cv::FONT_HERSHEY_COMPLEX_SMALL;
-		float font_size = 0.5f;
-		cv::Scalar clr = cv::Scalar(0, 0, 255);
-		cv::Scalar header_clr = cv::Scalar(255, 0, 0);
-		shared_ptr<byte> imgdata = image.getBGRByteArray();
-		cv::Mat mImg = cv::Mat(image.getHeight(), image.getWidth(), CV_8UC3, imgdata.get());
 		
 		std::ofstream fout;
 		fout.open("emotion-analysis.txt", std::ios_base::app);
@@ -53,10 +44,7 @@ public:
 
 			Face f = faces[i];
 			VecFeaturePoint points = f.featurePoints;
-			for (auto& point : points)	//Draw face feature points.
-			{
-				cv::circle(mImg, cv::Point(point.x, point.y), 1.0f, cv::Scalar(0, 0, 255));
-			}
+
 			Orientation headAngles = f.measurements.orientation;
 			std::string strAngles = "Pitch: " + std::to_string(headAngles.pitch) +
 				" Yaw: " + std::to_string(headAngles.yaw) +
@@ -66,37 +54,25 @@ public:
 			fout << strAngles << endl; //write Pitch, Yaw, Roll, and InterOcularDist
 
 			//Output the results of the different classifiers.
-			int padding = 10;
-
 			std::vector<std::string> expressions{ "smile", "innerBrowRaise", "browRaise", "browFurrow", "noseWrinkle",
 													"upperLipRaise", "lipCornerDepressor", "chinRaise", "lipPucker", "lipPress",
 													"lipSuck", "mouthOpen", "smirk", "eyeClosure", "attention" };
 
 			std::vector<std::string> emotions{ "joy", "fear", "disgust", "sadness", "anger", "surprise", "contempt", "valence", "engagement" };
 
-			cv::putText(mImg, "MEASUREMENTS", cv::Point(left_margin, padding += spacing), font, font_size, header_clr);
-
-			cv::putText(mImg, strAngles, cv::Point(left_margin, padding += spacing), font, font_size, clr);
-
-			cv::putText(mImg, "EXPRESSIONS", cv::Point(left_margin, padding += (spacing * 2)), font, font_size, header_clr);
-
 			float * values = (float *)&f.expressions;
 			fout << endl << "EXPRESSIONS" << endl;
 			for (string expression : expressions)
 			{
-				cv::putText(mImg, expression + ": " + std::to_string(int(*values)), cv::Point(left_margin, padding += spacing), font, font_size, clr);
 				fout << expression << ": " << std::to_string(int(*values)) << endl;
 				values++;
 			}
-
-			cv::putText(mImg, "EMOTIONS", cv::Point(left_margin, padding += (spacing * 2)), font, font_size, header_clr);
 
 			values = (float *)&f.emotions;
 
 			fout << endl << "EMOTIONS" << endl;
 			for (string emotion : emotions)
 			{
-				cv::putText(mImg, emotion + ": " + std::to_string(int(*values)), cv::Point(left_margin, padding += spacing), font, font_size, clr);
 				fout << emotion << ": " << std::to_string(int(*values)) << endl;
 				values++;
 			}
@@ -110,11 +86,6 @@ public:
 		}
 		fout << endl;
 		fout.close();
-		cv::putText(mImg, "capture fps: " + std::to_string(int(capture_fps)), cv::Point(mImg.cols - 110, mImg.rows - left_margin - spacing), font, font_size, clr);
-
-		cv::imshow("analyze-image", mImg);
-
-		cv::waitKey(30);
 	};
 
 	void onImageCapture(Frame image) override
