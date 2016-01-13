@@ -25,7 +25,14 @@ COMPILING
 RUNNING
 -------
 
-- Double click "opencv-webcam-demo.exe".
+- TEMPORARY
+	- By default (for now) the SDK will take in a photo in the "Release" folder called "1.png".
+	- To change mode (photo, video, webcam), look for the booleans within the source file "OpenCV-webcam-demo.cpp"
+	- Video mode will take in a video in webm format in the "Release" folder called "1.webm".
+		- Video mode is currently buggy. I'm working on resolving this.
+
+- Double click "opencv-webcam-demo.exe" to run.
+	- A file called "emotion-analysis.txt" should be outputted with the results.
 
 
 TROUBLESHOOTING
