@@ -31,5 +31,5 @@ RUNNING
 TROUBLESHOOTING
 ---------------
 
-- If you get some sort of "webcam failed to open" error, try relaunching.
+- If you get some sort of "failed to open webcam" error, try relaunching.
 - If that fails continuously, clean and recompile.
