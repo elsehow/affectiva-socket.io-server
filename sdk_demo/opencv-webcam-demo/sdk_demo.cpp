@@ -33,7 +33,6 @@ class PlottingImageListener : public ImageListener
 public:
 	void onImageResults(std::map<FaceId,Face> faces, Frame image) {
 		
- 		std::cerr << "Writing data points to text file." << endl;
 		std::ofstream fout;
 		fout.open("emotion-analysis.txt", std::ios_base::app);
 		fout << image.getTimestamp() << endl;
@@ -82,7 +81,7 @@ public:
 				fout << emotion << ": " << std::to_string(int(*values)) << endl;
 				values++;
 			}
-			std::cerr << "Timestamp: " << image.getTimestamp()
+			std::cerr << "Writing data points to text file with timestamp: " << image.getTimestamp()
 				<< "," << image.getWidth()
 				<< "x" << image.getHeight()
 				<< " cfps: " << capture_fps
@@ -99,15 +98,27 @@ public:
 
 };
 
-class PlottingProcessStatusListener : public ProcessStatusListener
+class MyProcessStatusListener : public ProcessStatusListener
 {
 public:
+	bool processing = true;
 	void onProcessingFinished() override {
-		std::cerr << "Video Processing Finished" << endl;
+		notify();
 	};
 
 	void onProcessingException(AffdexException exception) override {
 		std::cerr << exception.getExceptionMessage() << endl;
+	}
+
+	void wait() {
+		std::cerr << "Video processing has started." << endl << endl;
+		while (processing) {
+		};
+	}
+
+	void notify() {
+		std::cerr << endl  << "Video processing has finished." << endl;
+		processing = false;
 	}
 };
 
@@ -178,21 +189,24 @@ int main(int argsc, char ** argsv)
 		if (video)
 		{
 			std::cerr << "Setting up Video Detector." << endl;
-			VideoDetector videoDetector(30.0);
-			shared_ptr<ProcessStatusListener> pslistenPtr(new PlottingProcessStatusListener());
+			VideoDetector videoDetector(30.0); //initialize VideoDetector
+			MyProcessStatusListener listener; //initialize callback listener
+			//set up VideoDetector settings
 			videoDetector.setDetectAllEmotions(true);
 			videoDetector.setDetectAllExpressions(true);
 			videoDetector.setClassifierPath(AFFDEX_DATA_DIR);
 			videoDetector.setLicensePath(AFFDEX_LICENSE_FILE);
 			videoDetector.setImageListener(listenPtr.get());
-			//videoDetector.setProcessStatusListener(pslistenPtr.get());
-			//Start the video detector thread.
+			videoDetector.setProcessStatusListener(&listener);
+			//Start the video detector
 			videoDetector.start();
 			const std::wstring path_to_file = L"C:\\Users\\Eric Huynh\\Desktop\\concaminate\\sdk_demo\\Release\\n120.webm";
 			if (videoDetector.isRunning()) {
+				//Start processing the video
 				videoDetector.process(path_to_file);
+				//Wait until processing has finished
+				listener.wait();
 			}
-			Sleep(60000);
 			videoDetector.stop();
 			return 0;
 		}
