@@ -33,10 +33,10 @@ class PlottingImageListener : public ImageListener
 public:
 	void onImageResults(std::map<FaceId,Face> faces, Frame image) {
 		
-		std::cerr << "Writing data points to text file." << endl;
+ 		std::cerr << "Writing data points to text file." << endl;
 		std::ofstream fout;
 		fout.open("emotion-analysis.txt", std::ios_base::app);
-
+		fout << image.getTimestamp() << endl;
 		for (unsigned int i = 0; i < faces.size(); i++)
 		{
 			fout << "///////////////////////////////////////////////" << endl;
@@ -94,9 +94,23 @@ public:
 		fout.close();
 	};
 
-	void onImageCapture(Frame image) override
-	{};
+	void onImageCapture(Frame image) override {
+	};
+
 };
+
+class PlottingProcessStatusListener : public ProcessStatusListener
+{
+public:
+	void onProcessingFinished() override {
+		std::cerr << "Video Processing Finished" << endl;
+	};
+
+	void onProcessingException(AffdexException exception) override {
+		std::cerr << exception.getExceptionMessage() << endl;
+	}
+};
+
 
 int main(int argsc, char ** argsv) 
 {
@@ -164,18 +178,21 @@ int main(int argsc, char ** argsv)
 		if (video)
 		{
 			std::cerr << "Setting up Video Detector." << endl;
-			VideoDetector videoDetector(30);
+			VideoDetector videoDetector(30.0);
+			shared_ptr<ProcessStatusListener> pslistenPtr(new PlottingProcessStatusListener());
 			videoDetector.setDetectAllEmotions(true);
 			videoDetector.setDetectAllExpressions(true);
 			videoDetector.setClassifierPath(AFFDEX_DATA_DIR);
 			videoDetector.setLicensePath(AFFDEX_LICENSE_FILE);
 			videoDetector.setImageListener(listenPtr.get());
+			//videoDetector.setProcessStatusListener(pslistenPtr.get());
 			//Start the video detector thread.
 			videoDetector.start();
-			const std::wstring path_to_file = L"C:\\Users\\Eric Huynh\\Desktop\\concaminate\\sdk_demo\\Release\\1.webm";
+			const std::wstring path_to_file = L"C:\\Users\\Eric Huynh\\Desktop\\concaminate\\sdk_demo\\Release\\n120.webm";
 			if (videoDetector.isRunning()) {
 				videoDetector.process(path_to_file);
 			}
+			Sleep(60000);
 			videoDetector.stop();
 			return 0;
 		}
@@ -196,7 +213,7 @@ int main(int argsc, char ** argsv)
 				cv::Mat img;
 				img = cv::imread("C:\\Users\\Eric Huynh\\Desktop\\concaminate\\sdk_demo\\Release\\1.png");
 				if (!img.data) {
-					std:cerr << "Could not read image data." << endl;
+					std::cerr << "Could not read image data." << endl;
 					return 1;
 				}
 				Frame f(img.size().width, img.size().height, img.data, Frame::COLOR_FORMAT::BGR);

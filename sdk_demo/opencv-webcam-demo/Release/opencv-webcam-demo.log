@@ -1,12 +1,11 @@
-﻿Build started 1/13/2016 10:52:39 AM.
+﻿Build started 1/13/2016 9:52:04 PM.
      1>Project "C:\Users\Eric Huynh\Desktop\concaminate\sdk_demo\opencv-webcam-demo\opencv-webcam-demo.vcxproj" on node 2 (Rebuild target(s)).
      1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V120\Microsoft.CppBuild.targets(388,5): warning MSB8028: The intermediate directory (Release\) contains files shared from another project (Affectiva SDK Demo.vcxproj, opencv-webcam-demo.vcxproj).  This can lead to incorrect clean and rebuild behavior.
      1>ClCompile:
          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /I"C:\Program Files (x86)\Affectiva\Affdex SDK\include" /I..\opencv\build\include /Zi /nologo /W3 /WX- /sdl /O2 /Oi /Oy- /GL /D WIN32 /D NDEBUG /D _CONSOLE /D _LIB /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt sdk_demo.cpp
          sdk_demo.cpp
-     1>sdk_demo.cpp(131): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
-     1>sdk_demo.cpp(224): warning C4286: 'std::runtime_error' : is caught by base class ('std::exception') on line 219
-     1>sdk_demo.cpp(199): warning C4102: 'std' : unreferenced label
+     1>sdk_demo.cpp(145): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+     1>sdk_demo.cpp(241): warning C4286: 'std::runtime_error' : is caught by base class ('std::exception') on line 236
        Link:
          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Eric Huynh\Desktop\concaminate\sdk_demo\Release\sdk_demo.exe" /INCREMENTAL:NO /NOLOGO "C:\Program Files (x86)\Affectiva\Affdex SDK\lib\release\affdex-native.lib" ..\opencv\build\x86\vc12\lib\opencv_highgui249.lib ..\opencv\build\x86\vc12\lib\opencv_core249.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\Eric Huynh\Desktop\concaminate\sdk_demo\Release\sdk_demo.pdb" /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Eric Huynh\Desktop\concaminate\sdk_demo\Release\sdk_demo.lib" /MACHINE:X86 /SAFESEH Release\sdk_demo.obj
          Generating code
@@ -16,4 +15,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:01.99
+Time Elapsed 00:00:01.85
