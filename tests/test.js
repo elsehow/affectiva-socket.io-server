@@ -18,9 +18,14 @@ var emotions    = [  "joy", "fear", "disgust", "sadness", "anger", "surprise", "
 //    }
 //
 test('1. test affectiva executable', t => {
+    // TODO macros in js?
+    function checkField (test, field1, field2) {
+        test.ok(j[field1][field2], 'should see an expression at result.expressions.'+e)
+        test.deepEqual(typeof j.expressions[e], 'number', 'type of each expression should be a number')
+    }
     // TODO - make this the actual command to run the executable
     // TODO - add a test image to use 
-    exec('./affectiva-exec photo test-image.png', (err, stdout, stderror) => {
+    exec('./mocks/affectiva-exec photo test-image.png', (err, stdout, stderror) => {
         // should call the executable correctly
         t.notOk(err, 'should be no error in calling')
         t.notOk(stderror, 'should be no error from process\'s stdout')
@@ -29,15 +34,9 @@ test('1. test affectiva executable', t => {
         var j = JSON.parse(stdout)
         t.ok(j, 'result should be valid json')
         // check all fields in j.expressions
-        expressions.forEach(e => {
-            t.ok(j.expressions[e], 'should see an expression at result.expressions.'+e)
-            t.deepEqual(typeof j.expressions[e], 'Number', 'type of each expression should be a number')
-        })
+        expressions.forEach(e => checkField(t, 'expressions', e))
         // check all fields in j.emotions
-        emotions.forEach(e => {
-            t.ok(j.emotions[e], 'should see an expression at result.emotions.'+e)
-            t.deepEqual(typeof j.emotions[e], 'Number', 'type of each emotion should be a number')
-        })
+        emotions.forEach(e => checkField(t, 'emotions', e))
         // we're done
         t.end()
     })
