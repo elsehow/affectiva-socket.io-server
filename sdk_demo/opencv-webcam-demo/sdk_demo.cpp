@@ -28,60 +28,90 @@ float capture_fps = -1.0f;
 float process_last_timestamp = -1.0f;
 float process_fps = -1.0f;
 
+string JSON_OUT = "";
 
 class PlottingImageListener : public ImageListener
 {
+	int results_counter = 0;
 public:
 	void onImageResults(std::map<FaceId,Face> faces, Frame image) {
 		
-		std::ofstream fout;
-		fout.open("emotion-analysis.txt", std::ios_base::app);
-		fout << image.getTimestamp() << endl;
+		if (results_counter == 0) {
+			JSON_OUT += "{\n";
+		}
+		if (results_counter != 0) {
+			JSON_OUT += "\n";
+		}
+		results_counter++;
+		time_t t = time(0);
+		struct tm now;
+		localtime_s(&now, &t);
+
+		//Date and Time object
+		JSON_OUT += "    \"date and time\" : \""
+			+ to_string(now.tm_mon + 1) + '-' + to_string(now.tm_mday) + '-' + to_string(now.tm_year + 1900)
+			+ ' ' + to_string(now.tm_hour) + ':' + to_string(now.tm_min) + ':' + to_string(now.tm_sec) + "\",\n";
+		//Timestamp object
+		JSON_OUT += "    \"timestamp\" : " + to_string(image.getTimestamp()) + ",\n";
+
 		for (unsigned int i = 0; i < faces.size(); i++)
 		{
-			fout << "///////////////////////////////////////////////" << endl;
-			time_t t = time(0);
-			struct tm now;
-			localtime_s(&now, &t);
-			fout << "DATE AND TIME: "
-				 << (now.tm_mon + 1) << '-' << (now.tm_mday) << '-' << (now.tm_year + 1900) 
-				 << ' ' << (now.tm_hour) << ':' << (now.tm_min) << ':' << (now.tm_sec)
-				 << endl;
-
 			Face f = faces[i];
 			VecFeaturePoint points = f.featurePoints;
 
 			Orientation headAngles = f.measurements.orientation;
-			std::string strAngles = "Pitch: " + std::to_string(headAngles.pitch) +
-				" Yaw: " + std::to_string(headAngles.yaw) +
-				" Roll: " + std::to_string(headAngles.roll) +
-				" InterOcularDist: " + std::to_string(f.measurements.interocularDistance);
-			fout << endl << "MEASUREMENTS" << endl;
-			fout << strAngles << endl; //write Pitch, Yaw, Roll, and InterOcularDist
+
+			JSON_OUT += "    \"measurements\" : {"; //Begin Measurement object
+			JSON_OUT += "\n        \"yaw\" : " + to_string(headAngles.yaw) + ","; //Yaw
+			JSON_OUT += "\n        \"roll\" : " + to_string(headAngles.roll) + ","; //Roll
+			JSON_OUT += "\n        \"interoculardist\" : " + to_string(f.measurements.interocularDistance); //Interocular Distance
+			JSON_OUT += "\n    },\n"; //End Measurement object
 
 			//Output the results of the different classifiers.
 			std::vector<std::string> expressions{ "smile", "innerBrowRaise", "browRaise", "browFurrow", "noseWrinkle",
 													"upperLipRaise", "lipCornerDepressor", "chinRaise", "lipPucker", "lipPress",
 													"lipSuck", "mouthOpen", "smirk", "eyeClosure", "attention" };
 
-			std::vector<std::string> emotions{ "joy", "fear", "disgust", "sadness", "anger", "surprise", "contempt", "valence", "engagement" };
-
 			float * values = (float *)&f.expressions;
-			fout << endl << "EXPRESSIONS" << endl;
+
+			JSON_OUT += "    \"expressions\" : {"; //Begin Expressions object
+
+			int expressions_counter = 1;
 			for (string expression : expressions)
 			{
-				fout << expression << ": " << std::to_string(int(*values)) << endl;
+				if (expressions_counter == expressions.size()) { //Last expression so no comma at end
+					JSON_OUT += "\n        \"" + expression + "\" : " + std::to_string(int(*values));
+				}
+				else {
+					JSON_OUT += "\n        \"" + expression + "\" : " + std::to_string(int(*values)) + ",";
+
+				}
 				values++;
+				expressions_counter++;
 			}
 
+			JSON_OUT += "\n    },\n"; //End Expressions object
+
+			std::vector<std::string> emotions{ "joy", "fear", "disgust", "sadness", "anger", "surprise", "contempt", "valence", "engagement" };
 			values = (float *)&f.emotions;
 
-			fout << endl << "EMOTIONS" << endl;
+			JSON_OUT += "    \"emotions\" : { "; //Begin Emotions object
+			int emotions_counter = 1;
 			for (string emotion : emotions)
 			{
-				fout << emotion << ": " << std::to_string(int(*values)) << endl;
+				if (emotions_counter == emotions.size()) { //Last emotion so no comma at end
+					JSON_OUT += "\n        \"" + emotion + "\" : " + std::to_string(int(*values));
+
+				}
+				else {
+					JSON_OUT += "\n        \"" + emotion + "\" : " + std::to_string(int(*values)) + ",";
+
+				}
 				values++;
+				emotions_counter++;
 			}
+			JSON_OUT += "\n    },"; //End Emotions object
+
 			cout << "Writing data points to text file with timestamp: " << image.getTimestamp()
 				<< "," << image.getWidth()
 				<< "x" << image.getHeight()
@@ -90,19 +120,29 @@ public:
 			process_last_timestamp = image.getTimestamp();
 
 		}
-		fout << endl;
-		fout.close();
 	};
 
-	void onImageCapture(Frame image) override {
+	void onImageCapture(Frame image) override { //Function for missed frames.
 	};
+
+	static void write_to_JSON() {
+		JSON_OUT.pop_back(); //Remove extra comma
+		JSON_OUT += "\n}";
+		std::cout << "Writing to JSON file called emotions_analysis.json" << endl;
+		ofstream json;
+		json.open("emotions_analysis.json", ios_base::app);
+		json << JSON_OUT;
+		json.close();
+		cout << "Done writing to JSON file." << endl;
+		exit(EXIT_SUCCESS); //TEMPORARY
+	}
 
 };
 
-class MyProcessStatusListener : public ProcessStatusListener
+class MyProcessStatusListener : public ProcessStatusListener //FOR VIDEO PROCESSING ONLY
 {
-public:
 	bool processing = true;
+public:
 	void onProcessingFinished() override {
 		notify();
 	};
@@ -112,23 +152,23 @@ public:
 	}
 
 	void wait() {
-		std::cerr << "Video processing has started." << endl << endl;
+		std::cout << "Video processing has started." << endl << endl;
 		while (processing) {
-		};
+		}
 	}
 
 	void notify() {
-		std::cerr << endl  << "Video processing has finished." << endl;
+		std::cout << endl << "Video processing has finished." << endl;
 		processing = false;
+		PlottingImageListener::write_to_JSON();
 	}
 };
-
 
 int main(int argsc, char ** argsv) 
 {
 	if (argsc != 3) {
 		cout << "Missing data type and file argument." << endl;
-		return 0;
+		return 1;
 	}
 
 	string data_type = argsv[1];
@@ -176,6 +216,7 @@ int main(int argsc, char ** argsv)
 				videoDetector.process(path_to_file);
 				//Wait until processing has finished
 				listener.wait();
+				cout << "DO SOMETHING" << endl;
 			}
 			videoDetector.stop();
 			cout << "Video Detector stopped." << endl;
@@ -205,7 +246,9 @@ int main(int argsc, char ** argsv)
 				photoDetector.process(f);
 			}
 			photoDetector.stop();
-			cout << "Photo Detector has stopped." << endl;
+			cout << "Photo Detector stopped." << endl;
+			PlottingImageListener::write_to_JSON();
+
 			return 0;
 
 

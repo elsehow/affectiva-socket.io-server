@@ -10,7 +10,7 @@ OpenCV-webcam-demo
 
 OpenCV-webcam-demo is a simple app that uses the camera connected to your PC to view your facial expressions and face points.
 
-Data points are written to a ".txt" file in the "Release" folder.
+Data points are written to a JSON file in the "Release" folder.
 
 
 

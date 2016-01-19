@@ -13,7 +13,7 @@ var emotions    = [  "joy", "fear", "disgust", "sadness", "anger", "surprise", "
 // we expect the executable to return json that looks like this:
 //
 //    {
-//      "expressions": { "smile": 1, ... }
+//      "expressions" : { "smile": 1, ... }
 //      "emotions": { "joy": 1, ... }
 //    }
 //
