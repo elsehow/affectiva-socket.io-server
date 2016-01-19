@@ -35,90 +35,88 @@ class PlottingImageListener : public ImageListener
 	int results_counter = 0;
 public:
 	void onImageResults(std::map<FaceId,Face> faces, Frame image) {
-		
-		if (results_counter == 0) {
-			JSON_OUT += "{\n";
-		}
-		if (results_counter != 0) {
-			JSON_OUT += "\n";
-		}
-		results_counter++;
-		time_t t = time(0);
-		struct tm now;
-		localtime_s(&now, &t);
-
-		//Date and Time object
-		JSON_OUT += "    \"date and time\" : \""
-			+ to_string(now.tm_mon + 1) + '-' + to_string(now.tm_mday) + '-' + to_string(now.tm_year + 1900)
-			+ ' ' + to_string(now.tm_hour) + ':' + to_string(now.tm_min) + ':' + to_string(now.tm_sec) + "\",\n";
-		//Timestamp object
-		JSON_OUT += "    \"timestamp\" : " + to_string(image.getTimestamp()) + ",\n";
-
-		for (unsigned int i = 0; i < faces.size(); i++)
-		{
-			Face f = faces[i];
-			VecFeaturePoint points = f.featurePoints;
-
-			Orientation headAngles = f.measurements.orientation;
-
-			JSON_OUT += "    \"measurements\" : {"; //Begin Measurement object
-			JSON_OUT += "\n        \"yaw\" : " + to_string(headAngles.yaw) + ","; //Yaw
-			JSON_OUT += "\n        \"roll\" : " + to_string(headAngles.roll) + ","; //Roll
-			JSON_OUT += "\n        \"interoculardist\" : " + to_string(f.measurements.interocularDistance); //Interocular Distance
-			JSON_OUT += "\n    },\n"; //End Measurement object
-
-			//Output the results of the different classifiers.
-			std::vector<std::string> expressions{ "smile", "innerBrowRaise", "browRaise", "browFurrow", "noseWrinkle",
-													"upperLipRaise", "lipCornerDepressor", "chinRaise", "lipPucker", "lipPress",
-													"lipSuck", "mouthOpen", "smirk", "eyeClosure", "attention" };
-
-			float * values = (float *)&f.expressions;
-
-			JSON_OUT += "    \"expressions\" : {"; //Begin Expressions object
-
-			int expressions_counter = 1;
-			for (string expression : expressions)
-			{
-				if (expressions_counter == expressions.size()) { //Last expression so no comma at end
-					JSON_OUT += "\n        \"" + expression + "\" : " + std::to_string(int(*values));
-				}
-				else {
-					JSON_OUT += "\n        \"" + expression + "\" : " + std::to_string(int(*values)) + ",";
-
-				}
-				values++;
-				expressions_counter++;
+		if (faces.size() != 0) {
+			if (results_counter == 0) {
+				JSON_OUT += "[{\n"; //Beginning of list and new Frame object
 			}
-
-			JSON_OUT += "\n    },\n"; //End Expressions object
-
-			std::vector<std::string> emotions{ "joy", "fear", "disgust", "sadness", "anger", "surprise", "contempt", "valence", "engagement" };
-			values = (float *)&f.emotions;
-
-			JSON_OUT += "    \"emotions\" : { "; //Begin Emotions object
-			int emotions_counter = 1;
-			for (string emotion : emotions)
-			{
-				if (emotions_counter == emotions.size()) { //Last emotion so no comma at end
-					JSON_OUT += "\n        \"" + emotion + "\" : " + std::to_string(int(*values));
-
-				}
-				else {
-					JSON_OUT += "\n        \"" + emotion + "\" : " + std::to_string(int(*values)) + ",";
-
-				}
-				values++;
-				emotions_counter++;
+			if (results_counter != 0) {
+				JSON_OUT += "\n{\n"; //New Frame object
 			}
-			JSON_OUT += "\n    },"; //End Emotions object
+			results_counter++;
+			time_t t = time(0);
+			struct tm now;
+			localtime_s(&now, &t);
 
-			cout << "Writing data points to text file with timestamp: " << image.getTimestamp()
-				<< "," << image.getWidth()
-				<< "x" << image.getHeight()
-				<< " cfps: " << capture_fps
-				<< " pnts: " << points.size() << endl;
-			process_last_timestamp = image.getTimestamp();
+			//Date and Time object
+			JSON_OUT += "    \"date and time\" : \""
+				+ to_string(now.tm_mon + 1) + '-' + to_string(now.tm_mday) + '-' + to_string(now.tm_year + 1900)
+				+ ' ' + to_string(now.tm_hour) + ':' + to_string(now.tm_min) + ':' + to_string(now.tm_sec) + "\",\n";
+			//Timestamp object
+			JSON_OUT += "    \"timestamp\" : " + to_string(image.getTimestamp()) + ",\n";
 
+			for (unsigned int i = 0; i < faces.size(); i++)
+			{
+				Face f = faces[i];
+				VecFeaturePoint points = f.featurePoints;
+				Orientation headAngles = f.measurements.orientation;
+
+				JSON_OUT += "    \"measurements\" : {"; //Begin Measurement object
+				JSON_OUT += "\n        \"yaw\" : " + to_string(headAngles.yaw) + ","; //Yaw
+				JSON_OUT += "\n        \"roll\" : " + to_string(headAngles.roll) + ","; //Roll
+				JSON_OUT += "\n        \"interoculardist\" : " + to_string(f.measurements.interocularDistance); //Interocular Distance
+				JSON_OUT += "\n    },\n"; //End Measurement object
+
+				//Output the results of the different classifiers.
+				std::vector<std::string> expressions{ "smile", "innerBrowRaise", "browRaise", "browFurrow", "noseWrinkle",
+														"upperLipRaise", "lipCornerDepressor", "chinRaise", "lipPucker", "lipPress",
+														"lipSuck", "mouthOpen", "smirk", "eyeClosure", "attention" };
+
+				float * values = (float *)&f.expressions;
+
+				JSON_OUT += "    \"expressions\" : {"; //Begin Expressions object
+
+				int expressions_counter = 1; //Counter to find last expression
+				for (string expression : expressions)
+				{
+					if (expressions_counter == expressions.size()) { //Last expression so no comma at end
+						JSON_OUT += "\n        \"" + expression + "\" : " + std::to_string(int(*values));
+					}
+					else {
+						JSON_OUT += "\n        \"" + expression + "\" : " + std::to_string(int(*values)) + ",";
+					}
+					values++;
+					expressions_counter++;
+				}
+				JSON_OUT += "\n    },\n"; //End Expressions object
+
+				std::vector<std::string> emotions{ "joy", "fear", "disgust", "sadness", "anger", "surprise", "contempt", "valence", "engagement" };
+				values = (float *)&f.emotions;
+
+				JSON_OUT += "    \"emotions\" : { "; //Begin Emotions object
+				int emotions_counter = 1;
+				for (string emotion : emotions)
+				{
+					if (emotions_counter == emotions.size()) { //Last emotion so no comma at end
+						JSON_OUT += "\n        \"" + emotion + "\" : " + std::to_string(int(*values));
+					}
+					else {
+						JSON_OUT += "\n        \"" + emotion + "\" : " + std::to_string(int(*values)) + ",";
+					}
+					values++;
+					emotions_counter++;
+				}
+				JSON_OUT += "\n    }"; //End Emotions object
+
+				JSON_OUT += "\n},"; //End of Frame object
+
+				cout << "Found data points with timestamp: " << image.getTimestamp()
+					<< "," << image.getWidth()
+					<< "x" << image.getHeight()
+					<< " cfps: " << capture_fps
+					<< " pnts: " << points.size() << endl;
+				process_last_timestamp = image.getTimestamp();
+
+			}
 		}
 	};
 
@@ -127,13 +125,16 @@ public:
 
 	static void write_to_JSON() {
 		JSON_OUT.pop_back(); //Remove extra comma
-		JSON_OUT += "\n}";
+		JSON_OUT += "]"; //End of list of objects
+
 		std::cout << "Writing to JSON file called emotions_analysis.json" << endl;
+
 		ofstream json;
 		json.open("emotions_analysis.json", ios_base::app);
 		json << JSON_OUT;
 		json.close();
 		cout << "Done writing to JSON file." << endl;
+
 		exit(EXIT_SUCCESS); //TEMPORARY
 	}
 
@@ -199,9 +200,9 @@ int main(int argsc, char ** argsv)
 		{
 			cout << "Setting up Video Detector." << endl;
 			VideoDetector videoDetector(30.0); //initialize VideoDetector
-			MyProcessStatusListener listener; //initialize callback listener
+			MyProcessStatusListener listener; //initialize Callback Listener
 
-			//set up VideoDetector settings
+			//Set up VideoDetector settings
 			videoDetector.setDetectAllEmotions(true);
 			videoDetector.setDetectAllExpressions(true);
 			videoDetector.setClassifierPath(AFFDEX_DATA_DIR);
@@ -233,6 +234,7 @@ int main(int argsc, char ** argsv)
 			photoDetector.setClassifierPath(AFFDEX_DATA_DIR);
 			photoDetector.setLicensePath(AFFDEX_LICENSE_FILE);
 			photoDetector.setImageListener(listenPtr.get());
+
 			//Start the photo detector thread
 			photoDetector.start();
 			if (photoDetector.isRunning()) {
@@ -247,8 +249,10 @@ int main(int argsc, char ** argsv)
 			}
 			photoDetector.stop();
 			cout << "Photo Detector stopped." << endl;
-			PlottingImageListener::write_to_JSON();
 
+			if (JSON_OUT != "") { //Found face in photo so write to JSON file
+				PlottingImageListener::write_to_JSON();
+			}
 			return 0;
 
 
