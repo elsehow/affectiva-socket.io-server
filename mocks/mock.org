@@ -1,19 +1,202 @@
-* 
-** TODO affectiva CLI mock
+* system mock
 
-the affectiva api prints some json 
+this is an end-to-end mock describing the real-time facial expression API
+
+** DONE installation
+
+to set up dependencies for this system mock
+
+#+BEGIN_SRC shell
+npm install
+#+END_SRC
+
+** DONE affectiva cli client
+
+the affectiva api takes an image/video, and outputs json over stdout.
+
+*** DONE an affectiva CLI mock
+
+since the affectiva CLI tool isn't done yet, let's make a mock to simulate it's behavior
+
+we'll call this mock =affectiva-cli-mock.js=
+
+#+BEGIN_SRC js :tangle affectiva-cli-mock.js
+#! /usr/local/bin/node
+
+'use strict';
+#+END_SRC
+
+here is the kind of json we can expect it to output:
 
 #+NAME: json
-#+BEGIN_SRC js
-return 
+#+BEGIN_SRC js :tangle affectiva-cli-mock.js
+var json = [{
+    "date and time" : "1-19-2016 14:9:33",
+    "timestamp" : 0.000000,
+    "measurements" : {
+        "yaw" : -0.063200,
+        "roll" : 7.547718,
+        "interoculardist" : 243.320160
+    },
+    "expressions" : {
+        "smile" : 0,
+        "innerBrowRaise" : 0,
+        "browRaise" : 0,
+        "browFurrow" : 0,
+        "noseWrinkle" : 0,
+        "upperLipRaise" : 0,
+        "lipCornerDepressor" : 0,
+        "chinRaise" : 0,
+        "lipPucker" : 1,
+        "lipPress" : 0,
+        "lipSuck" : 0,
+        "mouthOpen" : 0,
+        "smirk" : 0,
+        "eyeClosure" : 0,
+        "attention" : 98
+    },
+    "emotions" : { 
+        "joy" : 0,
+        "fear" : 0,
+        "disgust" : 0,
+        "sadness" : 0,
+        "anger" : 0,
+        "surprise" : 0,
+        "contempt" : 0,
+        "valence" : 0,
+        "engagement" : 0
+    }
+}]
+
 #+END_SRC
 
 when we call it on an image,
 it outputs the json over stdout
 
-#+BEGIN_SRC js :var json=json
-setTimeout(() =>
-  console.log(json))
+#+BEGIN_SRC js :tangle affectiva-cli-mock.js
+var printJson = () => console.log(JSON.stringify(json))
+setTimeout(printJson, 1000)
 #+END_SRC
 
-*** TODO show that it passes the existing tests
+now we should be able to run that script as if it were the affectiva cli client
+
+(we don't pass it an image, for now)
+
+#+BEGIN_SRC shell
+node affectiva-cli-mock.js
+#+END_SRC
+
+*** DONE specs for the affectiva API
+
+here's a test that the affectiva CLI client should pass.
+
+we'll save this test as =test-affectiva-cli-specs.js=
+
+this script takes a shell command =-b= to execute, e.g.
+
+#+BEGIN_SRC shell
+node affectiva-cli-specs.js -b "node affectiva-cli-mock.js -i my-image.png"
+#+END_SRC
+
+ok, a test spec in tape:
+
+#+BEGIN_SRC js :tangle test-affectiva-cli-specs.js
+var test = require('tape'),
+    argv = require('minimist')(process.argv.slice(2)),
+    exec = require('child_process').exec
+
+console.log('bin to execute', argv.b)
+
+function checkCLIOutput (t, cliBinPath) {
+    exec('./' + cliBinPath, (err, stdout, stderror) => {
+        // should call the executable correctly
+        t.notOk(err, 'should be no error in calling')
+        t.notOk(stderror, 'should be no error from process\'s stdout')
+        t.ok(stdout, 'result should exist')
+        // executable's stdout should be parseable as json
+        var j = JSON.parse(stdout)
+        t.ok(j, 'result should be valid json')
+        // check it has some key fields
+        t.ok(j[0], 'result should be a list')
+        t.ok(j[0].expressions, 'object should have expressions field')
+        t.ok(j[0].emotions, 'object should have emotions field')
+        t.equals(0, j[0].timestamp, 'object should have timestamps field, where first item is 0')
+        t.ok(j[0]['date and time'], 'object should have \'date-and-time\' field')
+        // we're done
+        t.end()
+    })
+}
+
+test('test affectiva specs on shell command' + argv.s, t => {
+  checkCLIOutput(t, argv.b)
+})
+
+#+END_SRC
+
+*** DONE show the mock passes the existing tests
+
+our mock should pass this test
+
+#+RESULTS:
+
+#+BEGIN_SRC shell
+# make the mock executable
+chmod +x affectiva-cli-mock.js
+# test the cli specs on the mock
+node test-affectiva-cli-specs.js -b 'affectiva-cli-mock.js' | ./node_modules/.bin/tap-spec
+#+END_SRC
+
+#+RESULTS:
+| bin       | to        | execute | affectiva-cli-mock.js |                 |                  |           |        |      |    |   |
+|           |           |         |                       |                 |                  |           |        |      |    |   |
+| test      | affectiva | specs   | on                    | shell           | commandundefined |           |        |      |    |   |
+|           |           |         |                       |                 |                  |           |        |      |    |   |
+| ✔         | should    | be      | no                    | error           | in               | calling   |        |      |    |   |
+| ✔         | should    | be      | no                    | error           | from             | process's | stdout |      |    |   |
+| ✔         | result    | should  | exist                 |                 |                  |           |        |      |    |   |
+| ✔         | result    | should  | be                    | valid           | json             |           |        |      |    |   |
+| ✔         | result    | should  | be                    | a               | list             |           |        |      |    |   |
+| ✔         | object    | should  | have                  | expressions     | field            |           |        |      |    |   |
+| ✔         | object    | should  | have                  | emotions        | field            |           |        |      |    |   |
+| ✔         | object    | should  | have                  | timestamps      | field,           | where     | first  | item | is | 0 |
+| ✔         | object    | should  | have                  | 'date-and-time' | field            |           |        |      |    |   |
+|           |           |         |                       |                 |                  |           |        |      |    |   |
+|           |           |         |                       |                 |                  |           |        |      |    |   |
+| total:    | 9         |         |                       |                 |                  |           |        |      |    |   |
+| passing:  | 9         |         |                       |                 |                  |           |        |      |    |   |
+| duration: | 1.1s      |         |                       |                 |                  |           |        |      |    |   |
+|           |           |         |                       |                 |                  |           |        |      |    |   |
+|           |           |         |                       |                 |                  |           |        |      |    |   |
+
+** TODO server
+
+<2016-02-01 Mon 17:00>
+
+*** specs
+
+let's write *another test with tape* to describe the specs of our server
+
+**** requires an affectiva executable =-b= to be passed over the command line
+
+**** accepts post requests with images
+
+*** the server
+
+**** use strict
+
+**** simple http server
+
+**** handle POST reqs to / 
+
+*** integration test
+
+**** show that the server
+
+
+* meta
+
+** would be nice to tangle-all.sh and produce the code
+
+** would be nice to run-mock.sh and run all the tests
+
+** would be nice to ./build-and-test.sh to do one then the other
