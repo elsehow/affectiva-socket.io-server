@@ -1,0 +1,19 @@
+* 
+** TODO affectiva CLI mock
+
+the affectiva api prints some json 
+
+#+NAME: json
+#+BEGIN_SRC js
+return 
+#+END_SRC
+
+when we call it on an image,
+it outputs the json over stdout
+
+#+BEGIN_SRC js :var json=json
+setTimeout(() =>
+  console.log(json))
+#+END_SRC
+
+*** TODO show that it passes the existing tests

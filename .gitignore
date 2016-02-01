@@ -3,4 +3,5 @@ node_modules/
 .*.swo
 .DS_Store
 sdk_demo/opencv
-#*#
+#*
+.#*
