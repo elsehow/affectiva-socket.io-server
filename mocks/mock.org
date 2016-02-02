@@ -14,11 +14,12 @@ npm install
 
 the affectiva api takes an image/video, and outputs json over stdout.
 
+
 *** DONE an affectiva CLI mock
 
-since the affectiva CLI tool isn't done yet, let's make a mock to simulate it's behavior
+since the affectiva CLI tool isn't done yet, let's use this sample to make a mock. the mock will simulate the CLI tool's behavior.
 
-we'll call this mock =affectiva-cli-mock.js=
+let's wrte this this mock in =affectiva-cli-mock.js=
 
 #+BEGIN_SRC js :tangle affectiva-cli-mock.js
 #! /usr/local/bin/node
@@ -26,11 +27,12 @@ we'll call this mock =affectiva-cli-mock.js=
 'use strict';
 #+END_SRC
 
-here is the kind of json we can expect it to output:
+**** sample json
 
-#+NAME: json
-#+BEGIN_SRC js :tangle affectiva-cli-mock.js
-var json = [{
+here is a sample of the affectiva CLI client's JSON output
+
+#+BEGIN_SRC js :tangle affectiva-cli-mock.js 
+var sample_data = [{
     "date and time" : "1-19-2016 14:9:33",
     "timestamp" : 0.000000,
     "measurements" : {
@@ -67,14 +69,15 @@ var json = [{
         "engagement" : 0
     }
 }]
-
 #+END_SRC
 
 when we call it on an image,
 it outputs the json over stdout
 
+*** the mock
+
 #+BEGIN_SRC js :tangle affectiva-cli-mock.js
-var printJson = () => console.log(JSON.stringify(json))
+var printJson = () => console.log(JSON.stringify(sample_data))
 setTimeout(printJson, 1000)
 #+END_SRC
 
@@ -108,10 +111,10 @@ var test = require('tape'),
 console.log('bin to execute', argv.b)
 
 function checkCLIOutput (t, cliBinPath) {
-    exec('./' + cliBinPath, (err, stdout, stderror) => {
+    exec('./' + cliBinPath, (err, stdout, stderr) => {
         // should call the executable correctly
         t.notOk(err, 'should be no error in calling')
-        t.notOk(stderror, 'should be no error from process\'s stdout')
+        t.notOk(stderr, 'should be no error from process\'s stdout')
         t.ok(stdout, 'result should exist')
         // executable's stdout should be parseable as json
         var j = JSON.parse(stdout)
@@ -139,64 +142,139 @@ our mock should pass this test
 
 #+RESULTS:
 
-#+BEGIN_SRC shell
+#+BEGIN_SRC shell :tangle run-mock.sh
 # make the mock executable
 chmod +x affectiva-cli-mock.js
 # test the cli specs on the mock
 node test-affectiva-cli-specs.js -b 'affectiva-cli-mock.js' | ./node_modules/.bin/tap-spec
 #+END_SRC
 
-#+RESULTS:
-| bin       | to        | execute | affectiva-cli-mock.js |                 |                  |           |        |      |    |   |
-|           |           |         |                       |                 |                  |           |        |      |    |   |
-| test      | affectiva | specs   | on                    | shell           | commandundefined |           |        |      |    |   |
-|           |           |         |                       |                 |                  |           |        |      |    |   |
-| ✔         | should    | be      | no                    | error           | in               | calling   |        |      |    |   |
-| ✔         | should    | be      | no                    | error           | from             | process's | stdout |      |    |   |
-| ✔         | result    | should  | exist                 |                 |                  |           |        |      |    |   |
-| ✔         | result    | should  | be                    | valid           | json             |           |        |      |    |   |
-| ✔         | result    | should  | be                    | a               | list             |           |        |      |    |   |
-| ✔         | object    | should  | have                  | expressions     | field            |           |        |      |    |   |
-| ✔         | object    | should  | have                  | emotions        | field            |           |        |      |    |   |
-| ✔         | object    | should  | have                  | timestamps      | field,           | where     | first  | item | is | 0 |
-| ✔         | object    | should  | have                  | 'date-and-time' | field            |           |        |      |    |   |
-|           |           |         |                       |                 |                  |           |        |      |    |   |
-|           |           |         |                       |                 |                  |           |        |      |    |   |
-| total:    | 9         |         |                       |                 |                  |           |        |      |    |   |
-| passing:  | 9         |         |                       |                 |                  |           |        |      |    |   |
-| duration: | 1.1s      |         |                       |                 |                  |           |        |      |    |   |
-|           |           |         |                       |                 |                  |           |        |      |    |   |
-|           |           |         |                       |                 |                  |           |        |      |    |   |
-
 ** TODO server
 
 <2016-02-01 Mon 17:00>
 
-*** specs
+the server handles POST requests. POST requests have an image or a video in the body. the server feeds this image to the affectiva-cli client.
+
+the server takes a path to the affectiva binary with the option =-b=
+
+*** DONE specs
 
 let's write *another test with tape* to describe the specs of our server
 
-**** requires an affectiva executable =-b= to be passed over the command line
+**** DONE configuring the test
 
-**** accepts post requests with images
+#+BEGIN_SRC js :tangle test-server.js
+"use strict";
+var test = require('tape'),
+    spawn = require('child_process').spawn
+// name our server binary
+var server_cmd = './server.js'
+// we'll just use the mock cli client ofr now
+var affectiva_exe = 'affectiva-cli-mock.js'
+#+END_SRC
 
-*** the server
+**** DONE an affectiva executable =-b= should be passed over the command line
+#+BEGIN_SRC js :tangle test-server.js
+test('should require an executable -b from cli', t => {
+    var proc = spawn(server_cmd)
+    proc.stderr.on('data', e => {
+      t.ok(e, 'should complain if i don\'t pass an executable -b to it')
+      t.end()
+    })
+})
+#+END_SRC
 
-**** use strict
+**** TODO accepts post requests 
 
-**** simple http server
+#+BEGIN_SRC js :tangle test-server.js
+test('a post request should get our mock json as a response', t => {
+  var request = require('request')
+  // spawn [node server.js] -b [affectiva_exe]
+  var proc = spawn(server_cmd, ['-b', affectiva_exe])
+  // post a request to it
+  request.post('http://localhost:8889', (err, res, body) => {
+    // response has a body
+    t.ok(body, 'response exists')
+    // 200 response
+    t.equal(200, res.statusCode, '200 ok')
+    // content-type headers are json
+    t.equal(res.headers['content-type'], 'application/json', 'application/json content headers')
+    proc.kill()
+    t.end()
+  })
+})
 
-**** handle POST reqs to / 
+#+END_SRC
 
-*** integration test
+***** TODO check that response is really the right json
 
-**** show that the server
+*** server.js
+
+server should run on 8889, take post requests to '/', and respond with json from the affectiva binary
+
+**** DONE setup
+we'll use [[https://nodejs.org/api/child_process.html#child_process_child_process_spawn_command_args_options][child_process.spawn]] to run the affectiva cli, and [[http://expressjs.com/][express]] for our server
+
+#+BEGIN_SRC js :tangle server.js
+#! /usr/local/bin/node
+
+var spawn = require('child_process').spawn,
+    server = require('express')(),
+    port = 8889
+#+END_SRC
+
+and, we take a path to the =affectiva_cli_binary= with a command line argument =-b=
+
+#+BEGIN_SRC js :tangle server.js
+var argv = require('minimist')(process.argv.slice(2))
+var affectiva_cli_binary = argv.b
+#+END_SRC
+
+**** DONE assure that a binary -b was passed in
+
+#+BEGIN_SRC js :tangle server.js
+if (!affectiva_cli_binary) {
+  process.stderr.write("ERR!!!! Pass a path to the affectiva cli binary with -b. e.g. node server -b my/affectiva-binary")
+  process.exit(1)
+}
+#+END_SRC
+
+**** DONE handle POST requests to / 
+
+we'll exploit the fact that both the spawned process's stdout
+
+#+BEGIN_SRC js :tangle server.js
+server.post('/', (req, res) => {
+  var proc = spawn(`./${affectiva_cli_binary}`)
+  res.status(200)
+  proc.stdout.pipe(res)
+})
+#+END_SRC
+
+**** DONE start the server
+
+#+BEGIN_SRC  js :tangle server.js
+server.listen(port, () => console.log(`listening on ${port}`))
+#+END_SRC
+** DONE e2e integration test
+
+#+BEGIN_SRC 
+POST req => server => affectiva CLI
+                         ||
+http res                 \/
+ /\                      ||
+ L L ===<<====<<====<<===.]
+#+END_SRC
+
+#+BEGIN_SRC shell :tangle run-mock.sh
+chmod +x server.js
+node test-server.js | ./node_modules/.bin/tap-spec
+#+END_SRC 
+
+#+RESULTS:
 
 
-* meta
-
-** would be nice to tangle-all.sh and produce the code
-
-** would be nice to run-mock.sh and run all the tests
-
-** would be nice to ./build-and-test.sh to do one then the other
+* TODO meta
+** TODO would be nice to ./tangle-all.sh and produce the code
+from source, no thinking about org-mode
+** DONE would be nice to ./run-mock.sh and run all the tests
