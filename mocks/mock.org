@@ -10,7 +10,28 @@ to set up dependencies for this system mock
 npm install
 #+END_SRC
 
-** DONE affectiva cli client
+to set up for the first time,
+open mock.org in emacs and tangle with =C-c C-v t=
+
+finally, to run the mock,
+
+#+BEGIN_SRC shell
+bash run-mock.sh
+#+END_SRC
+
+** developing
+
+this is written in a literate style, in org mode.
+
+if you choose to develop in org mode, you'll just need to 
+
+=C-c C-v t=
+
+to tangle all the output. then, you can =bash run-mock.sh= as usual, or execute code blocks from within org mode with =C-c C-c=
+
+* source
+here is all the source - including specs and tests.
+** DONE affectiva cli client mock
 
 the affectiva api takes an image/video, and outputs json over stdout.
 
@@ -149,7 +170,7 @@ chmod +x affectiva-cli-mock.js
 node test-affectiva-cli-specs.js -b 'affectiva-cli-mock.js' | ./node_modules/.bin/tap-spec
 #+END_SRC
 
-** TODO server
+** DONE working server
 
 <2016-02-01 Mon 17:00>
 
@@ -184,31 +205,35 @@ test('should require an executable -b from cli', t => {
 })
 #+END_SRC
 
-**** TODO accepts post requests 
-
+**** DONE accepts post requests 
 #+BEGIN_SRC js :tangle test-server.js
 test('a post request should get our mock json as a response', t => {
-  var request = require('request')
+  function doTestRequest () {
+    var request = require('request')
+    // post a request to the endpoint
+    request.post('http://localhost:8889', (err, res, body) => {
+      // no errors
+      t.notOk(err, 'should be no error')
+      // response has a body
+      t.ok(res, 'response exists')
+      // 200 response
+      t.equal(200, res.statusCode, '200 ok')
+      // content-type headers are json
+      t.equal(res.toJSON().headers['content-type'], 'application/json', 'application/json content headers')
+      t.ok(JSON.parse(res.body)[0].emotions, 'response is parseable affectiva data, and seems to have the right schema.')
+      proc.kill()
+      t.end()
+    })
+  }
   // spawn [node server.js] -b [affectiva_exe]
   var proc = spawn(server_cmd, ['-b', affectiva_exe])
-  // post a request to it
-  request.post('http://localhost:8889', (err, res, body) => {
-    // response has a body
-    t.ok(body, 'response exists')
-    // 200 response
-    t.equal(200, res.statusCode, '200 ok')
-    // content-type headers are json
-    t.equal(res.headers['content-type'], 'application/json', 'application/json content headers')
-    proc.kill()
-    t.end()
-  })
+  // when the server says it's listening, do the test request
+  proc.stdout.on('data', doTestRequest)
 })
-
 #+END_SRC
 
-***** TODO check that response is really the right json
-
-*** server.js
+**** 
+*** DONE server.js
 
 server should run on 8889, take post requests to '/', and respond with json from the affectiva binary
 
@@ -221,6 +246,8 @@ we'll use [[https://nodejs.org/api/child_process.html#child_process_child_proces
 var spawn = require('child_process').spawn,
     server = require('express')(),
     port = 8889
+#+END_SRC
+
 #+END_SRC
 
 and, we take a path to the =affectiva_cli_binary= with a command line argument =-b=
@@ -247,6 +274,7 @@ we'll exploit the fact that both the spawned process's stdout
 server.post('/', (req, res) => {
   var proc = spawn(`./${affectiva_cli_binary}`)
   res.status(200)
+  res.setHeader('Content-Type', 'application/json');
   proc.stdout.pipe(res)
 })
 #+END_SRC
@@ -258,13 +286,17 @@ server.listen(port, () => console.log(`listening on ${port}`))
 #+END_SRC
 ** DONE e2e integration test
 
-#+BEGIN_SRC 
+this is a full-system integration test:
+
+#+BEGIN_EXAMPLE
 POST req => server => affectiva CLI
                          ||
 http res                 \/
  /\                      ||
  L L ===<<====<<====<<===.]
-#+END_SRC
+#+END_EXAMPLE
+
+let's make sure the server is executable, then run the tests
 
 #+BEGIN_SRC shell :tangle run-mock.sh
 chmod +x server.js
@@ -273,8 +305,36 @@ node test-server.js | ./node_modules/.bin/tap-spec
 
 #+RESULTS:
 
+* meta
+** TODO a ./tangle.sh that produces all the source
 
-* TODO meta
-** TODO would be nice to ./tangle-all.sh and produce the code
-from source, no thinking about org-mode
-** DONE would be nice to ./run-mock.sh and run all the tests
+here's a script that's supposed to do this
+
+it works, but it leaves a linebreak before each file of tangled code
+
+very annoying! it prevents some of the executables from working
+
+#+BEGIN_SRC shell :tangle tangle.sh
+# -*- mode: shell-script -*-
+#
+# tangle files with org-mode
+#
+# props to th.ing
+# https://github.com/thi-ng/fabric/blob/master/tangle.sh
+
+DIR=`pwd`
+
+emacs -Q --batch \
+--eval "(progn
+(require 'org)(require 'ob)(require 'ob-tangle)(require 'ob-lob)
+(setq org-confirm-babel-evaluate nil)
+(mapc (lambda (file)
+       (find-file (expand-file-name file \"$DIR\"))
+       (org-babel-tangle)
+       (kill-buffer)) '(\"mock.org\")))" \
+#2>&1 |grep tangled
+
+
+#+END_SRC
+** DONE a ./run-mock.sh and run all the tests
+done - that gets tangled through the script
