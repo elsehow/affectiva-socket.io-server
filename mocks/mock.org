@@ -2,22 +2,28 @@
 
 this is an end-to-end mock describing the real-time facial expression API
 
-** DONE installation
+the affectiva CLI client is represented by a mock executable that prints sample data over stdout.
+
+the server is meant to serve requests realistically.
+
+** installation
 
 to set up dependencies for this system mock
 
 #+BEGIN_SRC shell
-npm install
+# install all the dependencies
+npm install 
+# produce (tangle) the source from this org file
+bash tangle.sh
 #+END_SRC
-
-to set up for the first time,
-open mock.org in emacs and tangle with =C-c C-v t=
 
 finally, to run the mock,
 
 #+BEGIN_SRC shell
 bash run-mock.sh
 #+END_SRC
+
+and see those tests pass! (hopefully)
 
 ** developing
 
@@ -27,17 +33,22 @@ if you choose to develop in org mode, you'll just need to
 
 =C-c C-v t=
 
-to tangle all the output. then, you can =bash run-mock.sh= as usual, or execute code blocks from within org mode with =C-c C-c=
+to tangle all the output. 
 
+then, you can =bash run-mock.sh= as usual, or execute code blocks from within org mode with =C-c C-c=
+
+** TODOs
+*** TODO test with multipart images
+*** TODO test with multiple simultaneous requests
 * source
 here is all the source - including specs and tests.
-** DONE affectiva-cli-mock.js
+** affectiva-cli-mock.js
 
 the affectiva api takes an image/video, and outputs json over stdout.
 
 since the affectiva CLI tool isn't done yet, let's use this sample to make a mock. the mock will simulate the CLI tool's behavior.
 
-#+BEGIN_SRC js :tangle affectiva-cli-mock.js
+#+BEGIN_SRC js :tangle affectiva-cli-mock.js :padline no
 #! /usr/local/bin/node
 
 'use strict';
@@ -105,11 +116,13 @@ now we should be able to run that script as if it were the affectiva cli client
 node affectiva-cli-mock.js
 #+END_SRC
 
-** DONE test-affectiva-cli-specs.js
+** affectiva-cli.specs.js
 
-here's a test that the affectiva CLI client should pass.
+here are the specs for the affectiva CLI client.
 
-this test takes a flag =-b= referring to the path of the cli executable. to execute, e.g.
+these are tests written with [[https://www.npmjs.com/package/tape][tape]].
+
+when running this test from a bash command prompt, it takes a flag =-b= referring to the path of the affectiva cli executable, e.g.
 
 #+BEGIN_SRC shell
 node affectiva-cli-specs.js -b "node affectiva-cli-mock.js -i my-image.png"
@@ -117,7 +130,7 @@ node affectiva-cli-specs.js -b "node affectiva-cli-mock.js -i my-image.png"
 
 ok, let's write a test spec in tape:
 
-#+BEGIN_SRC js :tangle test-affectiva-cli-specs.js
+#+BEGIN_SRC js :tangle affectiva-cli.specs.js
 var test = require('tape'),
     argv = require('minimist')(process.argv.slice(2)),
     exec = require('child_process').exec
@@ -150,7 +163,7 @@ test('test affectiva specs on shell command' + argv.s, t => {
 
 #+END_SRC
 
-** DONE server.js
+** server.js
 
 the server handles POST requests. POST requests have an image or a video in the body. the server feeds this image to the affectiva-cli client.
 
@@ -161,7 +174,7 @@ server should run on 8889, take post requests to '/', and respond with json from
 *** DONE setup
 we'll use [[https://nodejs.org/api/child_process.html#child_process_child_process_spawn_command_args_options][child_process.spawn]] to run the affectiva cli, and [[http://expressjs.com/][express]] for our server
 
-#+BEGIN_SRC js :tangle server.js
+#+BEGIN_SRC js :tangle server.js :padline no
 #! /usr/local/bin/node
 
 var spawn = require('child_process').spawn,
@@ -205,13 +218,13 @@ server.post('/', (req, res) => {
 #+BEGIN_SRC  js :tangle server.js
 server.listen(port, () => console.log(`listening on ${port}`))
 #+END_SRC
-** DONE test-server.js
+** server.specs.js
 
 let's write *another test with tape* to describe the specs of our server
 
 *** DONE configuring the test
 
-#+BEGIN_SRC js :tangle test-server.js
+#+BEGIN_SRC js :tangle server.specs.js
 "use strict";
 var test = require('tape'),
     spawn = require('child_process').spawn
@@ -222,7 +235,7 @@ var affectiva_exe = 'affectiva-cli-mock.js'
 #+END_SRC
 
 *** DONE an affectiva executable =-b= should be passed over the command line
-#+BEGIN_SRC js :tangle test-server.js
+#+BEGIN_SRC js :tangle server.specs.js
 test('should require an executable -b from cli', t => {
     var proc = spawn(server_cmd)
     proc.stderr.on('data', e => {
@@ -233,7 +246,7 @@ test('should require an executable -b from cli', t => {
 #+END_SRC
 
 *** DONE accepts post requests 
-#+BEGIN_SRC js :tangle test-server.js
+#+BEGIN_SRC js :tangle server.specs.js
 test('a post request should get our mock json as a response', t => {
   function doTestRequest () {
     var request = require('request')
@@ -261,7 +274,7 @@ test('a post request should get our mock json as a response', t => {
 
 *** 
 
-** DONE tests
+** running tests
 *** DONE test the mock cli tool on the specs
 
 our mock should pass this test
@@ -272,7 +285,7 @@ our mock should pass this test
 # make the mock executable
 chmod +x affectiva-cli-mock.js
 # test the cli specs on the mock
-node test-affectiva-cli-specs.js -b 'affectiva-cli-mock.js' | ./node_modules/.bin/tap-spec
+node affectiva-cli.specs.js -b 'affectiva-cli-mock.js' | ./node_modules/.bin/tap-spec
 #+END_SRC
 
 #+RESULTS:
@@ -313,13 +326,13 @@ let's make sure the server is executable, then run the tests
 
 #+BEGIN_SRC shell :tangle run-mock.sh
 chmod +x server.js
-node test-server.js | ./node_modules/.bin/tap-spec
+node server.specs.js | ./node_modules/.bin/tap-spec
 #+END_SRC 
 
 #+RESULTS:
 
 * meta
-** TODO a ./tangle.sh that produces all the source
+** a ./tangle.sh that produces all the source
 
 here's a script that's supposed to do this
 
@@ -344,10 +357,9 @@ emacs -Q --batch \
 (mapc (lambda (file)
        (find-file (expand-file-name file \"$DIR\"))
        (org-babel-tangle)
-       (kill-buffer)) '(\"mock.org\")))" \
-#2>&1 |grep tangled
+       (kill-buffer)) '(\"mock.org\")))" #2>&1 |grep tangled
 
 
 #+END_SRC
-** DONE a ./run-mock.sh and run all the tests
+** a ./run-mock.sh and run all the tests
 done - that gets tangled through the script
