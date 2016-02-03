@@ -38,7 +38,7 @@ to tangle all the output.
 then, you can =bash run-mock.sh= as usual, or execute code blocks from within org mode with =C-c C-c=
 
 ** TODOs
-*** TODO test with multipart images
+*** TODO test with multipart images or videos
 *** TODO test with multiple simultaneous requests
 * source
 here is all the source - including specs and tests.
@@ -165,14 +165,12 @@ test('test affectiva specs on shell command' + argv.s, t => {
 
 ** server.js
 
-the server handles POST requests. POST requests have an image or a video in the body. the server feeds this image to the affectiva-cli client.
-
-the server takes a path to the affectiva binary with the option =-b=
-
-server should run on 8889, take post requests to '/', and respond with json from the affectiva binary
+the server handles POST requests. eventually, POST requests will have an image or a video in the body. the server will this image to the affectiva-cli client, ideally using streams. that's all to be implemented later, when we have more of a clue what kind of data we're going to be feeding (webm, gif, etc..)
 
 *** DONE setup
 we'll use [[https://nodejs.org/api/child_process.html#child_process_child_process_spawn_command_args_options][child_process.spawn]] to run the affectiva cli, and [[http://expressjs.com/][express]] for our server
+
+server should run on 8889, take post requests to '/', and respond with json from the affectiva binary
 
 #+BEGIN_SRC js :tangle server.js :padline no
 #! /usr/local/bin/node
@@ -184,7 +182,7 @@ var spawn = require('child_process').spawn,
 
 #+END_SRC
 
-and, we take a path to the =affectiva_cli_binary= with a command line argument =-b=
+the server takes a path to the affectiva binary with the option =-b=
 
 #+BEGIN_SRC js :tangle server.js
 var argv = require('minimist')(process.argv.slice(2))
@@ -333,12 +331,6 @@ node server.specs.js | ./node_modules/.bin/tap-spec
 
 * meta
 ** a ./tangle.sh that produces all the source
-
-here's a script that's supposed to do this
-
-it works, but it leaves a linebreak before each file of tangled code
-
-very annoying! it prevents some of the executables from working
 
 #+BEGIN_SRC shell :tangle tangle.sh
 # -*- mode: shell-script -*-
