@@ -1,19 +1,16 @@
 var getUserMedia = require('get-user-media')
   , RecordRTC = require('recordrtc')
   , request = require('request')
+  , io = require('socket.io-client')
+  , socket = io('localhost:3333')
+
+socket.on('err', err => console.log('err', err))
+
+socket.on('data', data => console.log('data', data))
 
 // utility fn for posting vid data
 function postVideo (blob) {
-  request.post({
-    //preambleCRLF: true,
-    //postambleCRLF: true,
-    url: 'http://localhost:3000/',
-    json: JSON.stringify(blob)
-   },
-   function (err, res, body) {
-     if (err) console.log('err!', err)
-     else console.log('uploaded!')
-  })
+  socket.emit('video', blob)
 }
 
 // options
@@ -44,7 +41,8 @@ function recordASec (err, stream) {
     // when it stops,
     .onRecordingStopped(videoURL => {
       // post the video data
-      recordRTC.getDataURL(postVideo)
+      var blob = recordRTC.getBlob()
+      postVideo(blob)
       // start recording again
       recordASec(err, stream)
   })

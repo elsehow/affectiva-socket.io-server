@@ -308,6 +308,7 @@ node affectiva-cli.specs.js -b 'affectiva-cli-mock.js' | ./node_modules/.bin/tap
 |           |           |         |                       |                 |                  |           |        |      |    |   |
 |           |           |         |                       |                 |                  |           |        |      |    |   |
 
+
 *** DONE e2e integration test on the server & mock
 
 this is a full-system integration test:
