@@ -21,6 +21,8 @@ var recOptions = {
 var num_recorded = 0
 
 // logic
+var proc = spawn('sdk_demo.exe')
+proc.pipe(process.stdout)
 
 function recordASec (err, stream) {
   if (err) throw err
