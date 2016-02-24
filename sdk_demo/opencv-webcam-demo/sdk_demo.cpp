@@ -109,11 +109,11 @@ public:
 
 				JSON_OUT += "\n},"; //End of Frame object
 
-				cout << "Found data points with timestamp: " << image.getTimestamp()
+				/* cout << "Found data points with timestamp: " << image.getTimestamp()
 					<< "," << image.getWidth()
 					<< "x" << image.getHeight()
 					<< " cfps: " << capture_fps
-					<< " pnts: " << points.size() << endl;
+					<< " pnts: " << points.size() << endl; */
 				process_last_timestamp = image.getTimestamp();
 
 			}
@@ -138,6 +138,15 @@ public:
 		exit(EXIT_SUCCESS); //TEMPORARY
 	}
 
+	static void output_to_STDOUT() {
+		JSON_OUT.pop_back(); //Remove extra comma
+		JSON_OUT += "]"; //End of list of objects
+
+		std::cout << JSON_OUT;
+		exit(EXIT_SUCCESS);
+
+	}
+
 };
 
 class MyProcessStatusListener : public ProcessStatusListener //FOR VIDEO PROCESSING ONLY
@@ -153,22 +162,22 @@ public:
 	}
 
 	void wait() {
-		std::cout << "Video processing has started." << endl << endl;
+		//std::cout << "Video processing has started." << endl << endl;
 		while (processing) {
 		}
 	}
 
 	void notify() {
-		std::cout << endl << "Video processing has finished." << endl;
+		//std::cout << endl << "Video processing has finished." << endl;
 		processing = false;
-		PlottingImageListener::write_to_JSON();
+		PlottingImageListener::output_to_STDOUT();
 	}
 };
 
 int main(int argsc, char ** argsv) 
 {
 	if (argsc != 3) {
-		cout << "Missing data type and file argument." << endl;
+		cerr << "Missing data type and file argument." << endl;
 		return 1;
 	}
 
@@ -198,7 +207,7 @@ int main(int argsc, char ** argsv)
 		//VIDEO INPUT
 		if (video)
 		{
-			cout << "Setting up Video Detector." << endl;
+			//cout << "Setting up Video Detector." << endl;
 			VideoDetector videoDetector(30.0); //initialize VideoDetector
 			MyProcessStatusListener listener; //initialize Callback Listener
 
@@ -217,17 +226,16 @@ int main(int argsc, char ** argsv)
 				videoDetector.process(path_to_file);
 				//Wait until processing has finished
 				listener.wait();
-				cout << "DO SOMETHING" << endl;
 			}
 			videoDetector.stop();
-			cout << "Video Detector stopped." << endl;
+			//cout << "Video Detector stopped." << endl;
 			return 0;
 		}
 		
 		//PHOTO INPUT
 		if (photo)
 		{
-			cout << "Setting up Photo Detector." << endl;
+			//cout << "Setting up Photo Detector." << endl;
 			PhotoDetector photoDetector;
 			photoDetector.setDetectAllEmotions(true);
 			photoDetector.setDetectAllExpressions(true);
@@ -248,10 +256,15 @@ int main(int argsc, char ** argsv)
 				photoDetector.process(f);
 			}
 			photoDetector.stop();
-			cout << "Photo Detector stopped." << endl;
+			//cout << "Photo Detector stopped." << endl;
 
 			if (JSON_OUT != "") { //Found face in photo so write to JSON file
-				PlottingImageListener::write_to_JSON();
+				//PlottingImageListener::write_to_JSON();
+				std::cout << JSON_OUT;
+				return 0;
+			}
+			else if (JSON_OUT == "") {
+				return 1;
 			}
 			return 0;
 
