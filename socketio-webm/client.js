@@ -1,6 +1,5 @@
 var getUserMedia = require('get-user-media')
   , RecordRTC = require('recordrtc')
-  , request = require('request')
   , io = require('socket.io-client')
   , socket = io('localhost:3333')
 
