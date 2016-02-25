@@ -15,7 +15,7 @@ function postVideo (blob) {
 // options
 
 // num of ms each clip will be (ms)
-var clipDuration = 10000
+var clipDuration = 15000
 // options for recording stuff
 var recOptions = {
   type: 'video',

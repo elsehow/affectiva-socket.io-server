@@ -1,16 +1,11 @@
-OpenCV-webcam-demo
-------------------
-
-*Dependencies*
+Dependencies
 
 - Affdex SDK 2.0 (32 bit)
 - OpenCV for Windows 2.4.9: http://sourceforge.net/projects/opencvlibrary/files/opencv-win/2.4.9/
 - Visual Studio 2013 or higher
 - Affectiva SDK License
 
-OpenCV-webcam-demo is a simple app that uses the camera connected to your PC to view your facial expressions and face points.
-
-Data points are written to a JSON file in the "Release" folder.
+Data points our outputted to STDOUT as JSON.
 
 
 

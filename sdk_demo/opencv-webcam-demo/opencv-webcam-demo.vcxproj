@@ -14,7 +14,7 @@
     <ProjectGuid>{8DCDC209-C25D-4C61-B2AC-2FBA1775DD6B}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>opencvwebcamdemo</RootNamespace>
-    <ProjectName>sdk_demo</ProjectName>
+    <ProjectName>emotions</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -83,7 +83,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="sdk_demo.cpp" />
+    <ClCompile Include="emotions.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
