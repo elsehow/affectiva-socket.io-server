@@ -5,7 +5,7 @@ the low-level client is a js module, which can be installed via npm
 ## installation
 
     npm install streaming-faces
-    
+
 ## usage
 
 ```javascript
