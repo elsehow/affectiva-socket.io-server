@@ -16,9 +16,11 @@ io.on('connection', (socket) => {
       // after the file is written, exec emotions.exe with the filename
       var child = execFile('emotions.exe', ['video', fn], (error, stdout, stderr) => {
         // TODO stderr: is it a thing?
-        // if theres an error, return as err
-        if (error) socket.emit('err', error)
-        // no error, send data
+        // if theres an error, return as error
+        if (error) socket.emit('error', error)
+        // if theres a stderr, return as stderr
+        else if (stderr) socket.emit('stderr', stderr)
+        //no error, send date
         else socket.emit('data', stdout)
         // delete the file now
         fs.unlink(fn) 
