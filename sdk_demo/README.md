@@ -5,7 +5,7 @@ Dependencies
 - Visual Studio 2013 or higher
 - Affectiva SDK License
 
-Data points our outputted to STDOUT as JSON.
+Data points are outputted to STDOUT as JSON.
 
 
 
@@ -15,6 +15,8 @@ COMPILING
 - Download OpenCV and place the folder in the root folder.
 - Open the "opencv-webcam-demo/opencv-webcam-demo" file and use Visual Studio to compile.
 - This will output a ".exe" file in "Release/".
+- "opencv_ffmpeg248.dll" is a necessary codec for running video analysis.
+	- It needs to be placed in the same directory as the executable.
 
 
 RUNNING
