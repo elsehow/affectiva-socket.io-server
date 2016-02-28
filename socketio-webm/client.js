@@ -1,57 +1,40 @@
-var getUserMedia = require('get-user-media')
-  , RecordRTC = require('recordrtc')
-  , io = require('socket.io-client')
-  , socket = io('localhost:3333')
+var chunky = require('chunky-webcam')
+  , getUserMedia = require('get-user-media')
+  , attachMediaStream = require('attachmediastream')
+  // element in which we show video
+  , video_el = document.getElementById('my-video')
+  // element in which we show server messages
+  , msg_el = document.getElementById('server-messages')
 
-socket.on('err', err => console.log('err', err))
+// get user webcam
+getUserMedia({ video: true, audio: false}, (err, stream) => {
 
-socket.on('data', data => console.log('data', data))
+    // if the browser doesn't support user media 
+    // or the user says "no" the error gets passed 
+    // as the first argument. 
+    if (err)
+        console.log('error getting your webcam!', err);
 
-// utility fn for posting vid data
-function postVideo (blob) {
-  socket.emit('video', blob)
-}
+    // put the webcam stream in a video element
+    attachMediaStream(stream,video_el, {
+        muted: true,
+        mirror: true,
+    })
 
-// options
+    // setup chunky-webcam, with our stream
+    // it will record 1000ms chunks,
+    // and send them with a 'video' event to 'localhost:9999'
+    // where our server runs
+    chunk = chunky(stream, 1000, 'localhost:3333')
 
-// num of ms each clip will be (ms)
-var clipDuration = 15000
-// options for recording stuff
-var recOptions = {
-  type: 'video',
-  mimeType: 'video/webm',
-  video: {
-    width: 320,
-    height: 240,
-  },
-  frameInterval: 10,
-  disableLogs: true,
-}
+    // our server will send 'data' events
+    chunk.socket.on('data', data => {
+        // we'll show the data in msg_el
+        msg_el.innerHTML = JSON.stringify(data)
+        
+    })
 
-// logic
-
-function recordASec (err, stream) {
-  if (err) throw err
-  var recordRTC = RecordRTC(stream, recOptions)
-  // start it recording
-  recordRTC
-    .startRecording()
-    .setRecordingDuration(clipDuration)
-    // when it stops,
-    .onRecordingStopped(videoURL => {
-      // post the video data
-      var blob = recordRTC.getBlob()
-      postVideo(blob)
-      // start recording again
-      recordASec(err, stream)
-  })
-}
-
-// setup
-
-// start recording
-getUserMedia({ 
-  video: true,
-  audio: false,
-  }, recordASec)
-
+    chunk.socket.on('error', err => {
+        msg_el.innerHTML = 'ERR!!!!!! ' + err
+    })
+})
