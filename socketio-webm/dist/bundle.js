@@ -1,5 +1,4 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-<<<<<<< HEAD
 var chunky = require('chunky-webcam')
   , getUserMedia = require('get-user-media')
   , attachMediaStream = require('attachmediastream')
@@ -35,6 +34,10 @@ getUserMedia({ video: true, audio: false}, (err, stream) => {
         msg_el.innerHTML = JSON.stringify(data)
         
     })
+
+    chunk.socket.on('error', err => {
+        msg_el.innerHTML = 'ERR!!!!!! ' + err
+    })
 })
 
 },{"attachmediastream":2,"chunky-webcam":4,"get-user-media":6}],2:[function(require,module,exports){
@@ -50,68 +53,6 @@ module.exports = function (stream, el, options) {
         audio: false,
         disableContextMenu: false
     };
-=======
-var getUserMedia = require('get-user-media')
-  , RecordRTC = require('recordrtc')
-  , io = require('socket.io-client')
-  , socket = io('localhost:3333')
-
-socket.on('err', err => console.log('err', err))
-
-socket.on('data', data => console.log('data', data))
-
-// utility fn for posting vid data
-function postVideo (blob) {
-  socket.emit('video', blob)
-}
-
-// options
-
-// num of ms each clip will be (ms)
-var clipDuration = 15000
-// options for recording stuff
-var recOptions = {
-  type: 'video',
-  mimeType: 'video/webm',
-  video: {
-    width: 320,
-    height: 240,
-  },
-  frameInterval: 10,
-  disableLogs: true,
-}
-
-// logic
-
-function recordASec (err, stream) {
-  if (err) throw err
-  var recordRTC = RecordRTC(stream, recOptions)
-  // start it recording
-  recordRTC
-    .startRecording()
-    .setRecordingDuration(clipDuration)
-    // when it stops,
-    .onRecordingStopped(videoURL => {
-      // post the video data
-      var blob = recordRTC.getBlob()
-      postVideo(blob)
-      // start recording again
-      recordASec(err, stream)
-  })
-}
-
-// setup
-
-// start recording
-getUserMedia({ 
-  video: true,
-  audio: false,
-  }, recordASec)
-
-
-},{"get-user-media":26,"recordrtc":35,"socket.io-client":36}],2:[function(require,module,exports){
-module.exports = after
->>>>>>> dd92df28f93329fe334a7e6981f2bbd74656801e
 
     if (options) {
         for (item in options) {
