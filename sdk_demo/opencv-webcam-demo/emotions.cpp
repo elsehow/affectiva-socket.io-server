@@ -42,6 +42,7 @@ public:
 			if (results_counter != 0) {
 				JSON_OUT += "\n{\n"; //New Frame object
 			}
+
 			results_counter++;
 			time_t t = time(0);
 			struct tm now;
@@ -51,7 +52,8 @@ public:
 			JSON_OUT += "    \"date and time\" : \""
 				+ to_string(now.tm_mon + 1) + '-' + to_string(now.tm_mday) + '-' + to_string(now.tm_year + 1900)
 				+ ' ' + to_string(now.tm_hour) + ':' + to_string(now.tm_min) + ':' + to_string(now.tm_sec) + "\",\n";
-			//Timestamp object
+			
+			//Video timestamp object
 			JSON_OUT += "    \"timestamp\" : " + to_string(image.getTimestamp()) + ",\n";
 
 			for (unsigned int i = 0; i < faces.size(); i++)
@@ -109,11 +111,6 @@ public:
 
 				JSON_OUT += "\n},"; //End of Frame object
 
-				/* cout << "Found data points with timestamp: " << image.getTimestamp()
-					<< "," << image.getWidth()
-					<< "x" << image.getHeight()
-					<< " cfps: " << capture_fps
-					<< " pnts: " << points.size() << endl; */
 				process_last_timestamp = image.getTimestamp();
 
 			}
@@ -127,17 +124,13 @@ public:
 		JSON_OUT.pop_back(); //Remove extra comma
 		JSON_OUT += "]"; //End of list of objects
 
-		std::cout << "Writing to JSON file called emotions_analysis.json" << endl;
-
 		ofstream json;
 		json.open("emotions_analysis.json", ios_base::app);
 		json << JSON_OUT;
 		json.close();
-		cout << "Done writing to JSON file." << endl;
 
 		exit(EXIT_SUCCESS); //TEMPORARY
 	}
-
 	static void output_to_STDOUT() {
 		JSON_OUT.pop_back(); //Remove extra comma
 		JSON_OUT += "]"; //End of list of objects
@@ -162,6 +155,7 @@ public:
 
 	void wait() {
 		while (processing) {
+			processing = true;
 		}
 	}
 
@@ -174,7 +168,7 @@ public:
 int main(int argsc, char ** argsv) 
 {
 	if (argsc != 3) {
-		cerr << "Missing data type and file argument." << endl;
+		cerr << "Missing file type or file path argument." << endl;
 		return 1;
 	}
 
@@ -252,11 +246,7 @@ int main(int argsc, char ** argsv)
 			photoDetector.stop();
 
 			if (JSON_OUT != "") { //Found face in photo so write to JSON file
-				std::cout << JSON_OUT;
-				return 0;
-			}
-			else if (JSON_OUT == "") {
-				return 1;
+				PlottingImageListener::write_to_JSON();
 			}
 			return 0;
 

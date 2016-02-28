@@ -3,7 +3,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LocalDebuggerEnvironment>PATH=%PATH%;C:\Program Files (x86)\Affectiva\Affdex SDK\bin\release;..\opencv\build\x86\vc12\bin</LocalDebuggerEnvironment>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommandArguments>video 1.mp4</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>video 6.webm</LocalDebuggerCommandArguments>
     <LocalDebuggerWorkingDirectory>..\Release</LocalDebuggerWorkingDirectory>
   </PropertyGroup>
 </Project>
