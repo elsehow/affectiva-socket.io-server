@@ -132,10 +132,15 @@ public:
 		exit(EXIT_SUCCESS); //TEMPORARY
 	}
 	static void output_to_STDOUT() {
-		JSON_OUT.pop_back(); //Remove extra comma
-		JSON_OUT += "]"; //End of list of objects
-
-		std::cout << JSON_OUT;
+		if (!JSON_OUT.empty()) {
+			JSON_OUT.pop_back(); //Remove extra comma
+			JSON_OUT += "]"; //End of list of objects
+			std::cout << JSON_OUT;
+		}
+		else {
+			std::cerr << "Unable to proces video" << endl;
+			exit(EXIT_FAILURE);
+		}
 		exit(EXIT_SUCCESS);
 	}
 
