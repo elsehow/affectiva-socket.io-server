@@ -6,6 +6,7 @@ var chunky = require('chunky-webcam')
   , video_el = document.getElementById('my-video')
   // element in which we show server messages
   , msg_el = document.getElementById('server-messages')
+  , ws_api_endpoint = 'localhost:3333'
 
 
 // pretty print html div
@@ -32,7 +33,7 @@ getUserMedia({ video: true, audio: false}, (err, stream) => {
     // it will record 1000ms chunks,
     // and send them with a 'video' event to 'localhost:9999'
     // where our server runs
-    chunk = chunky(stream, 2000, 'https://203807b8.ngrok.io')
+    chunk = chunky(stream, 5000, ws_api_endpoint)
 
     // our server will send 'data' events
     chunk.socket.on('data', data => {

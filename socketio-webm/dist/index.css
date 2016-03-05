@@ -1,0 +1,32 @@
+body {
+     background-color: #F8F8FF;  
+}
+
+#header {
+    text-align: center;
+}
+
+#server-messages {
+	display: inline-block;
+}
+
+#my-video {
+    display: block;
+    margin: 0 auto;
+}
+
+#container {
+	float: left;
+	position: relative;
+	left: 37%;
+}
+
+#inner-container {
+	float: left;
+	position: relative;
+	left: -37%
+}
+
+
+
+
