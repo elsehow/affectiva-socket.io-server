@@ -19,7 +19,7 @@ io.on('connection', (socket) => {
     // write the binary blob to disk
     fs.writeFile(fn, blob, (err, res) => {
       // after the file is written, exec emotions.exe with the filename
-      var child = execFile('emotions.exe', ['video', fn], (error, stdout, stderr) => {
+      var child = execFile('emotions.exe', [fn], (error, stdout, stderr) => {
         // delete the video file now
         fs.unlink(fn) 
         // if theres an error, return as error

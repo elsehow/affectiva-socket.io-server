@@ -1,13 +1,8 @@
-body {
-     background-color: #F8F8FF;  
-}
-
 #header {
     text-align: center;
 }
 
 #server-messages {
-	display: inline-block;
 }
 
 #my-video {

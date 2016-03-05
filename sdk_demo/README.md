@@ -23,8 +23,8 @@ RUNNING
 -------
 
 - Open CMD and cd to the folder contain the ".exe" file.
-- Run using "sdk_demo.exe [type] [path to file]"
-	- Type options: video, photo
+- Run using "sdk_demo.exe [path to file]"
+	- Type options: video
 
 TROUBLESHOOTING
 ---------------

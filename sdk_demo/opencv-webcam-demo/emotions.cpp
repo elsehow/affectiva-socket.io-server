@@ -120,28 +120,17 @@ public:
 	void onImageCapture(Frame image) override { //Function for missed frames.
 	};
 
-	static void write_to_JSON() {
-		JSON_OUT.pop_back(); //Remove extra comma
-		JSON_OUT += "]"; //End of list of objects
-
-		ofstream json;
-		json.open("emotions_analysis.json", ios_base::app);
-		json << JSON_OUT;
-		json.close();
-
-		exit(EXIT_SUCCESS); //TEMPORARY
-	}
 	static void output_to_STDOUT() {
 		if (!JSON_OUT.empty()) {
 			JSON_OUT.pop_back(); //Remove extra comma
 			JSON_OUT += "]"; //End of list of objects
 			std::cout << JSON_OUT;
+			exit(EXIT_SUCCESS); //TEMPORARY
 		}
 		else {
-			std::cerr << "Unable to proces video" << endl;
-			exit(EXIT_FAILURE);
+			std::cerr << "Unable to proces video." << endl;
+			exit(EXIT_FAILURE); //TEMPORARY
 		}
-		exit(EXIT_SUCCESS);
 	}
 
 };
@@ -172,26 +161,15 @@ public:
 
 int main(int argsc, char ** argsv) 
 {
-	if (argsc != 3) {
-		cerr << "Missing file type or file path argument." << endl;
+	if (argsc != 2) {
+		cerr << "Missing video file path argument." << endl;
 		return 1;
 	}
 
-	string data_type = argsv[1];
-	string file = argsv[2];
+	string file = argsv[1];
 
 	wstring path_to_file;
 	path_to_file.assign(file.begin(), file.end());
-
-	boolean video = false;
-	boolean photo = false;
-
-	if (data_type.compare("video") == 0) {
-		video = true;
-	}
-	else if (data_type.compare("photo") == 0) {
-		photo = true;
-	}
 	
 	try{
 		// Parse and check the data folder (with assets)
@@ -201,65 +179,27 @@ int main(int argsc, char ** argsv)
 		shared_ptr<ImageListener> listenPtr(new PlottingImageListener());	// Instanciate the ImageListener class
 
 		//VIDEO INPUT
-		if (video)
-		{
-			VideoDetector videoDetector(30.0); //initialize VideoDetector
-			MyProcessStatusListener listener; //initialize Callback Listener
+		VideoDetector videoDetector(30.0); //initialize VideoDetector
+		MyProcessStatusListener listener; //initialize Callback Listener
 
-			//Set up VideoDetector settings
-			videoDetector.setDetectAllEmotions(true);
-			videoDetector.setDetectAllExpressions(true);
-			videoDetector.setClassifierPath(AFFDEX_DATA_DIR);
-			videoDetector.setLicensePath(AFFDEX_LICENSE_FILE);
-			videoDetector.setImageListener(listenPtr.get());
-			videoDetector.setProcessStatusListener(&listener);
+		//Set up VideoDetector settings
+		videoDetector.setDetectAllEmotions(true);
+		videoDetector.setDetectAllExpressions(true);
+		videoDetector.setClassifierPath(AFFDEX_DATA_DIR);
+		videoDetector.setLicensePath(AFFDEX_LICENSE_FILE);
+		videoDetector.setImageListener(listenPtr.get());
+		videoDetector.setProcessStatusListener(&listener);
 
-			//Start the video detector
-			videoDetector.start();
-			if (videoDetector.isRunning()) {
-				//Start processing the video
-				videoDetector.process(path_to_file);
-				//Wait until processing has finished
-				listener.wait();
-			}
-			videoDetector.stop();
-			return 0;
+		//Start the video detector
+		videoDetector.start();
+		if (videoDetector.isRunning()) {
+			//Start processing the video
+			videoDetector.process(path_to_file);
+			//Wait until processing has finished
+			listener.wait();
 		}
-		
-		//PHOTO INPUT
-		if (photo)
-		{
-			PhotoDetector photoDetector;
-			photoDetector.setDetectAllEmotions(true);
-			photoDetector.setDetectAllExpressions(true);
-			photoDetector.setClassifierPath(AFFDEX_DATA_DIR);
-			photoDetector.setLicensePath(AFFDEX_LICENSE_FILE);
-			photoDetector.setImageListener(listenPtr.get());
-
-			//Start the photo detector thread
-			photoDetector.start();
-			if (photoDetector.isRunning()) {
-				cv::Mat img;
-				img = cv::imread(file);
-				if (!img.data) {
-					std::cerr << "Could not read image data or file does not exist." << endl;
-					return 1;
-				}
-				Frame f(img.size().width, img.size().height, img.data, Frame::COLOR_FORMAT::BGR);
-				photoDetector.process(f);
-			}
-			photoDetector.stop();
-
-			if (JSON_OUT != "") { //Found face in photo so write to JSON file
-				PlottingImageListener::write_to_JSON();
-			}
-			return 0;
-
-
-
-
-		}
-
+		videoDetector.stop();
+		return 0;
 	}
 	catch (AffdexException ex)
 	{

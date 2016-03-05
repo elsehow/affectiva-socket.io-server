@@ -3,7 +3,7 @@ if [ $# -eq 2 ]
 		for video in $1/*;
 		do
 			TIMEFORMAT="%R";
-			elapsed_time=$({ time ./emotions.exe video $video >/dev/null 2>&1;} 2>&1 )
+			elapsed_time=$({ time ./emotions.exe $video >/dev/null 2>&1;} 2>&1 )
 			echo $elapsed_time$'\r' >> $2
 			echo "Done with $video video"
 		done
