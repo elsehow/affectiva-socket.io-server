@@ -1,0 +1,13 @@
+
+# first, set to the conf file in C:/
+
+set OPENSSL_CONF=c:/openssl.cnf
+
+
+# now, generate a key and cert
+
+openssl.exe req -x509 -newkey rsa:2048 -keyout key.pem -out cert.pem -days 365
+
+# finally, remove pass from key
+
+openssl.exe rsa -in key.pem -out nopasskey.pem

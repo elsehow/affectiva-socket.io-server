@@ -5,7 +5,7 @@ var chunky = require('chunky-webcam')
   , video_el = document.getElementById('my-video')
   // element in which we show server messages
   , msg_el = document.getElementById('server-messages')
-  , ws_api_endpoint = 'http://verdigris.ischool.berkeley.edu:3333'
+  , ws_api_endpoint = 'https://verdigris.ischool.berkeley.edu:3333'
 
 
 // pretty print html div

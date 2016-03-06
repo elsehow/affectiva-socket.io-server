@@ -6,7 +6,7 @@ var chunky = require('chunky-webcam')
   , video_el = document.getElementById('my-video')
   // element in which we show server messages
   , msg_el = document.getElementById('server-messages')
-  , ws_api_endpoint = 'http://verdigris.ischool.berkeley.edu:3333'
+  , ws_api_endpoint = 'https://verdigris.ischool.berkeley.edu:3333'
 
 
 // pretty print html div
@@ -45,7 +45,6 @@ getUserMedia({ video: true, audio: false}, (err, stream) => {
         msg_el.innerHTML = jsonDiv(err)
     })
 })
-
 },{"attachmediastream":2,"chunky-webcam":4,"get-user-media":53}],2:[function(require,module,exports){
 var adapter = require('webrtc-adapter-test');
 module.exports = function (stream, el, options) {

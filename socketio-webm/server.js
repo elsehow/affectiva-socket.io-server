@@ -1,10 +1,17 @@
-var app      = require('http').createServer()
+var fs       = require('fs')
+var options  = {
+  key: fs.readFileSync('./key.pem'),
+  cert: fs.readFileSync('./cert.pem'),
+} 
+
+var app      = require('https').createServer(options)
   , io       = require('socket.io')(app)
-  , fs       = require('fs')
   , uuid     = require('uuid')
   , execFile = require('child_process').execFile
 
 app.listen(3333);
+
+console.log('listening')
 
 io.on('connection', (socket) => {
   // when we get a 'video' event, it contains a binary blob `blob`
