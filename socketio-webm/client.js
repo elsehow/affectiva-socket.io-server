@@ -32,7 +32,7 @@ getUserMedia({ video: true, audio: false}, (err, stream) => {
     // it will record 1000ms chunks,
     // and send them with a 'video' event to 'localhost:9999'
     // where our server runs
-    chunk = chunky(stream, 5000, ws_api_endpoint)
+    chunk = chunky(stream, 500, ws_api_endpoint)
 
     // our server will send 'data' events
     chunk.socket.on('data', data => {
