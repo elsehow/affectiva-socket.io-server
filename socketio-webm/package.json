@@ -11,12 +11,12 @@
     "attachmediastream": "^1.3.5",
     "chunky-webcam": "0.0.1",
     "ecstatic": "^1.3.1",
-    "forever": "^0.15.1",
     "get-user-media": "0.0.0",
     "socket.io": "^1.4.5",
     "uuid": "^2.0.1"
   },
   "devDependencies": {
+    "forever": "^0.15.1",
     "http-server": "^0.9.0",
     "watchify": "^3.7.0"
   }
