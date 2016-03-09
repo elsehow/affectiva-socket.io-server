@@ -2,7 +2,7 @@
   "main": "server.js",
   "scripts": {
     "start": "http-server dist -S -p 80",
-    "server": "forever start --minUptime 1000 --spinSleepTime 1000 server.js",
+    "server": "forever start -w --minUptime 1000 --spinSleepTime 1000 server.js",
     "watch": "watchify client.js -o dist/bundle.js"
   },
   "author": "elsehow",
