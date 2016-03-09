@@ -2,7 +2,7 @@
   "main": "server.js",
   "scripts": {
     "start": "http-server dist -S -p 80",
-    "server": "node server.js",
+    "server": "forever start --minUptime 1000 --spinSleepTime 1000 server.js",
     "watch": "watchify client.js -o dist/bundle.js"
   },
   "author": "elsehow",
@@ -11,6 +11,7 @@
     "attachmediastream": "^1.3.5",
     "chunky-webcam": "0.0.1",
     "ecstatic": "^1.3.1",
+    "forever": "^0.15.1",
     "get-user-media": "0.0.0",
     "socket.io": "^1.4.5",
     "uuid": "^2.0.1"
