@@ -2,6 +2,7 @@
 #include <memory>
 #include <chrono>
 #include <thread>
+#include <mutex>
 #include <opencv\highgui.h>
 #include <filesystem>
 
@@ -11,9 +12,7 @@
 #include "Frame.h"
 #include "Face.h"
 #include "ImageListener.h"
-#include "FrameDetector.h"
 #include "VideoDetector.h"
-#include "PhotoDetector.h"
 #include "AffdexException.h"
 
 #include <fstream>
@@ -111,6 +110,8 @@ public:
 
 				JSON_OUT += "\n},"; //End of Frame object
 
+				PlottingImageListener::output_to_STDOUT(); //Output as we analyze
+
 				process_last_timestamp = image.getTimestamp();
 
 			}
@@ -125,11 +126,9 @@ public:
 			JSON_OUT.pop_back(); //Remove extra comma
 			JSON_OUT += "]"; //End of list of objects
 			std::cout << JSON_OUT;
-			exit(EXIT_SUCCESS); //TEMPORARY
 		}
 		else {
-			std::cerr << "Unable to proces video." << endl;
-			exit(EXIT_FAILURE); //TEMPORARY
+			std::cerr << "Unable to process video." << endl;
 		}
 	}
 
@@ -137,26 +136,33 @@ public:
 
 class MyProcessStatusListener : public ProcessStatusListener //FOR VIDEO PROCESSING ONLY
 {
-	bool processing = true;
 public:
+	MyProcessStatusListener():IsProcessing(true) {};
 	void onProcessingFinished() override {
-		notify();
+		mutie.lock();
+		IsProcessing = false;
+		mutie.unlock();
+		//PlottingImageListener::output_to_STDOUT(); //Output all at once
 	};
 
 	void onProcessingException(AffdexException exception) override {
-		std::cerr << exception.getExceptionMessage() << endl;
-	}
+		std::cerr << "Encountered an exception while processing: " << exception.getExceptionMessage() << endl;
+		mutie.lock();
+		IsProcessing = false;
+		mutie.unlock();
+	};
 
-	void wait() {
-		while (processing) {
-			processing = true;
-		}
-	}
+	boolean isProcessing() {
+		boolean processing = true;
+		mutie.lock();
+		processing = IsProcessing;
+		mutie.unlock();
+		return processing;
+	};
 
-	void notify() {
-		processing = false;
-		PlottingImageListener::output_to_STDOUT();
-	}
+private:
+	std::mutex mutie;
+	bool IsProcessing;
 };
 
 int main(int argsc, char ** argsv) 
@@ -196,24 +202,24 @@ int main(int argsc, char ** argsv)
 			//Start processing the video
 			videoDetector.process(path_to_file);
 			//Wait until processing has finished
-			listener.wait();
+			while (listener.isProcessing()) {};
 		}
 		videoDetector.stop();
 		return 0;
 	}
 	catch (AffdexException ex)
 	{
-		std::cerr << "Encountered an AffdexException " << ex.what();
+		std::cerr << "Encountered an AffdexException: " << ex.what();
 		return 1;
 	}
 	catch (std::exception ex)
 	{
-		std::cerr << "Encountered an exception " << ex.what();
+		std::cerr << "Encountered an exception: " << ex.what();
 		return 1;
 	}
 	catch (std::runtime_error err)
 	{
-		std::cerr << "Encountered a runtime error " << err.what();
+		std::cerr << "Encountered a runtime error: " << err.what();
 		return 1;
 	}
 
