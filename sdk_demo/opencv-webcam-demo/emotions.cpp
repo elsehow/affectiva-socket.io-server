@@ -110,8 +110,6 @@ public:
 
 				JSON_OUT += "\n},"; //End of Frame object
 
-				PlottingImageListener::output_to_STDOUT(); //Output as we analyze
-
 				process_last_timestamp = image.getTimestamp();
 
 			}
@@ -142,7 +140,7 @@ public:
 		mutie.lock();
 		IsProcessing = false;
 		mutie.unlock();
-		//PlottingImageListener::output_to_STDOUT(); //Output all at once
+		PlottingImageListener::output_to_STDOUT(); //Output all at once
 	};
 
 	void onProcessingException(AffdexException exception) override {
