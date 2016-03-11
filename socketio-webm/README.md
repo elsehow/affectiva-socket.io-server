@@ -1,4 +1,4 @@
-## dependencies
+## executable dependencies
     affectiva sdk demo: http://www.affectiva.com
     affectiva sdk license
 
