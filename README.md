@@ -2,6 +2,8 @@
 
 this is a [socket.io](http://socket.io) server that receives webcam data, in webm files, over a websocket connection. it replies with data from the [Affectiva SDK](http://www.affectiva.com).
 
+BioSENSE is not affiliated with Affectiva in any way. 
+
 ## installing
 
     npm install
@@ -48,3 +50,7 @@ The source files for the executable can be found at [huynhing/emotions-exec](htt
 NOTE
 ----
 Static files can be served in `dist/`.  Drop any html file in dist/ "npm start" to serve dist/ over HTTPS using the same key and cert as the server
+
+# license
+
+BSD
