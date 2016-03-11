@@ -2,7 +2,7 @@
     affectiva sdk:
         http://www.affectiva.com
         Should be installed to "C:\\Program Files (x86)\\Affectiva\\
-    affectiva sdk license
+    affectiva sdk license:
         Should be placed in "C:\\Program Files (x86)\\Affectiva\\Affdex SDK\\affdex.license"
 
 ## executable source files
