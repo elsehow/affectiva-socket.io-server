@@ -1,6 +1,6 @@
-# affectiva websocket API
+# affectiva socket.io API
 
-this is a websocket server that receives webcam data, in webm files, over a websocket connection. it replies with data from the [Affectiva SDK](http://www.affectiva.com).
+this is a [socket.io](http://socket.io) server that receives webcam data, in webm files, over a websocket connection. it replies with data from the [Affectiva SDK](http://www.affectiva.com).
 
 ## installing
 
