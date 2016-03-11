@@ -42,8 +42,8 @@ now, put `key.pem` and `key.cert` in the root folder, and the https servers shou
 
 
 ## executable source files
-    The source files for the executable can be found in the following repo:
-        https://github.com/huynhing/emotions-exec
+
+The source files for the executable can be found at [huynhing/emotions-exec](https://github.com/huynhing/emotions-exec)
 
 NOTE
 ----
