@@ -7,6 +7,8 @@
     npm start
     npm run server
 
-## developing client-side
+NOTE
+----
+- Static files can be served in dist/
 
-    npm run watch
+- Drop any html file in dist/ "npm start" to serve dist/ over HTTPS using the same key and cert as the server

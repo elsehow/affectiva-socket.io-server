@@ -3,7 +3,6 @@
   "scripts": {
     "start": "http-server dist -S -p 80",
     "server": "node server.js",
-    "watch": "watchify client.js -o dist/bundle.js"
   },
   "author": "elsehow",
   "license": "BSD-2-Clause",
@@ -17,6 +16,5 @@
   },
   "devDependencies": {
     "http-server": "^0.9.0",
-    "watchify": "^3.7.0"
   }
 }
