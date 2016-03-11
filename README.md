@@ -6,20 +6,14 @@ this is a websocket server that receives webcam data, in webm files, over a webs
 
     npm install
 
-## running
-
-    npm start
-    npm run server
-
-## dependencies
+### dependencies
 Get the [Affectiva SDK]( http://www.affectiva.com).
 
 Install it to `C:\\Program Files (x86)\\Affectiva\\`
 
 Place your SDK license in `C:\\Program Files (x86)\\Affectiva\\Affdex SDK\\affdex.license`
 
-
-## generating SSL keys on windows
+### generating SSL keys on windows
 
 somewhat wisely, chrome requires https for all sites that ask for webcam access.
 
@@ -39,6 +33,12 @@ remove pass from key-pass.key, producing key.pem
     openssl.exe rsa -in key-pass.pem -out key.pem
 
 now, put `key.pem` and `key.cert` in the root folder, and the https servers should work
+
+
+## running
+
+    npm start
+    npm run server
 
 
 ## executable source files
